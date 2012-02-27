@@ -1,8 +1,8 @@
 \name{parse_format}
 \alias{parse_format}
 \title{Parse a text label to produce expressions for plotmath.}
-\arguments{
-  \item{x}{character vector to format}
+\usage{
+  parse_format()
 }
 \value{
   a function with single paramater x, a character vector,

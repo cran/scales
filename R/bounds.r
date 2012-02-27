@@ -51,36 +51,43 @@ rescale_none <- function(x, ...) {
 #' @export
 #' @param x numeric vector of values to manipulate.
 #' @param range numeric vector of length two giving desired output range.
+#' @param only.finite if \code{TRUE} (the default), will only modify
+#'   finite values.
 #' @export
 #' @examples
 #' censor(c(-1, 0.5, 1, 2, NA))
-censor <- function(x, range = c(0, 1)) {
-  ifelse(x >= range[1] & x <= range[2], x, NA)
+censor <- function(x, range = c(0, 1), only.finite = TRUE) {
+  force(range)
+  finite <- if (only.finite) is.finite(x) else TRUE
+  x[finite & x < range[1]] <- NA
+  x[finite & x > range[2]] <- NA
+  x
 }
 
 #' Discard any values outside of range.
 #'
-#' @param x numeric vector of values to manipulate.
-#' @param range numeric vector of length two giving desired output range.
+#' @inheritParams censor
 #' @export
 #' @examples
 #' discard(c(-1, 0.5, 1, 2, NA))
 discard <- function(x, range = c(0, 1)) {
+  force(range)
   x[x >= range[1] & x <= range[2]]
 }
 
 #' Squish values into range.
 #'
 #' @author Homer Strong <homer.strong@@gmail.com>
-#' @param x numeric vector of values to manipulate.
-#' @param range numeric vector of length two giving desired output range.
+#' @inheritParams censor
 #' @export
 #' @examples
 #' squish(c(-1, 0.5, 1, 2, NA))
 #' squish(c(-1, 0, 0.5, 1, 2))
-squish <- function(x, range = c(0, 1)) {
-  x[x < range[1]] <- range[1]
-  x[x > range[2]] <- range[2]
+squish <- function(x, range = c(0, 1), only.finite = TRUE) {
+  force(range)
+  finite <- if (only.finite) is.finite(x) else TRUE
+  x[finite & x < range[1]] <- range[1]
+  x[finite & x > range[2]] <- range[2]
   x
 }
 
@@ -92,6 +99,7 @@ squish <- function(x, range = c(0, 1)) {
 #' @examples
 #' squish_infinite(c(-Inf, -1, 0, 1, 2, Inf))
 squish_infinite <- function(x, range = c(0, 1)) {
+  force(range)
   x[x == -Inf] <- range[1]
   x[x == Inf] <- range[2]
   x
@@ -119,7 +127,5 @@ expand_range <- function(range, mul = 0, add = 0, zero_width = 1) {
 #' @export
 #' @param x numeric range: vector of length 2
 zero_range <- function(x) {
-  if (length(x) == 1) return(TRUE)
-  x <- x / mean(x)
-  isTRUE(all.equal(x[1], x[2]))
+  length(x) == 1 || isTRUE(all.equal(x[1] - x[2], 0))
 }

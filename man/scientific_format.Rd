@@ -4,12 +4,16 @@
 \title{Scientific formatter.}
 \usage{
   scientific_format(digits = 3, ...)
+
+  scientific(x, digits = 3, ...)
 }
 \arguments{
   \item{digits}{number of significant digits to show}
 
   \item{...}{other arguments passed on to
   \code{\link{format}}}
+
+  \item{x}{a numeric vector to format}
 }
 \value{
   a function with single paramater x, a numeric vector,

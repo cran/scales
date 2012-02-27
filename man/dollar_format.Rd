@@ -2,6 +2,14 @@
 \alias{dollar}
 \alias{dollar_format}
 \title{Currency formatter: round to nearest cent and display dollar sign.}
+\usage{
+  dollar_format()
+
+  dollar(x)
+}
+\arguments{
+  \item{x}{a numeric vector to format}
+}
 \value{
   a function with single paramater x, a numeric vector,
   that returns a character vector
