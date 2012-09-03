@@ -1,3 +1,28 @@
+Version 0.2.2
+------------------------------------------------------------------------------
+
+* `zero_range` has improved behaviour thanks to Brian Diggs.
+
+* `brewer_pal` complains if you give it an incorrect palette type. (Fixes #15,
+  thanks to Jean-Olivier Irisson)
+
+* `shape_pal` warns if asked for more than 6 values. (Fixes #16, thanks to
+  Jean-Olivier Irisson)
+
+* `time_trans` gains an optional argument `tz` to specify the time zone to use
+  for the times.  If not specified, it will be guess from the first input with
+  a non-null time zone.
+
+* `date_trans` and `time_trans` now check that their inputs are of the correct
+   type.  This prevents ggplot2 scales from silently giving incorrect outputs
+   when given incorrect inputs.
+
+* Change the default breaks algorithm for `cbreaks()` and `trans_new()`.
+  Previously it was `pretty_breaks()`, and now it's `extended_breaks()`,
+  which uses the `extended()` algorithm from the labeling package.
+
+* fixed namespace problem with `fullseq`
+
 Version 0.2.1
 ------------------------------------------------------------------------------
 
