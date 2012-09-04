@@ -8,14 +8,22 @@
 #' t$inv(t$trans(years))
 #' t$format(t$breaks(range(years)))
 date_trans <- function() {
-  trans_new("date", "from_date", "to_date")
+  trans_new("date", "from_date", "to_date", breaks = pretty_breaks())
 }
 
 to_date <- function(x)   structure(x, class = "Date")
-from_date <- function(x) structure(as.numeric(x), names = names(x))
+from_date <- function(x) {
+  if (!inherits(x, "Date")) {
+    stop("Invalid input: date_trans works with objects of class Date only",
+      call. = FALSE)
+  }
+  structure(as.numeric(x), names = names(x))
+}
 
 #' Transformation for times (class POSIXt).
 #'
+#' @param tz Optionally supply the time zone.  If \code{NULL}, the default,
+#'   the time zone will be extracted from first input with a non-null tz.
 #' @export
 #' @examples
 #' hours <- seq(ISOdate(2000,3,20, tz = ""), by = "hour", length.out = 10)
@@ -23,12 +31,27 @@ from_date <- function(x) structure(as.numeric(x), names = names(x))
 #' t$trans(hours)
 #' t$inv(t$trans(hours))
 #' t$format(t$breaks(range(hours)))
-time_trans <- function() {
-  trans_new("time", "from_time", "to_time")
+time_trans <- function(tz = NULL) {
+  
+  to_time <- function(x) {
+    force(x)
+    structure(x, class = c("POSIXt", "POSIXct"), tzone = tz)
+  }
+  
+  from_time <- function(x) {
+    if (!inherits(x, "POSIXct")) {
+      stop("Invalid input: time_trans works with objects of class ", 
+        "POSIXct only", call. = FALSE)
+    }
+    if (is.null(tz)) {
+      tz <<- attr(as.POSIXlt(x), "tzone")[[1]]
+    }
+    structure(as.numeric(x), names = names(x))
+  }
+  
+  trans_new("time", "from_time", "to_time", breaks = pretty_breaks())
 }
 
-to_time <- function(x)   structure(x, class = c("POSIXt", "POSIXct"))
-from_time <- function(x) structure(as.numeric(x), names = names(x))
 
 #' Regularly spaced dates.
 #' 

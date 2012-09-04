@@ -18,7 +18,7 @@ pretty_breaks <- function(n = 5, ...) {
 }
 
 #' Extended breaks.
-#' Uses Wilkinon's extended breaks algorithm as implemented in the 
+#' Uses Wilkinson's extended breaks algorithm as implemented in the 
 #' \pkg{labeling} package.
 #'
 #' @param n desired number of breaks
@@ -115,7 +115,7 @@ trans_breaks <- function(trans, inv, n = 5, ...) {
 #' cbreaks(c(0, 100), breaks = c(15, 20, 80), labels = c(1.5, 2.0, 8.0))
 #' cbreaks(c(0, 100), breaks = c(15, 20, 80), 
 #'   labels = expression(alpha, beta, gamma))
-cbreaks <- function(range, breaks = pretty_breaks(), labels = scientific_format()) {
+cbreaks <- function(range, breaks = extended_breaks(), labels = scientific_format()) {
   
   if (zero_range(range)) {
     return(list(breaks = range[1], labels = format(range[1])))
