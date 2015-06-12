@@ -1,23 +1,26 @@
 Package: scales
-Type: Package
-Title: Scale functions for graphics.
-Version: 0.2.4
-Author: Hadley Wickham <h.wickham@gmail.com>
-Maintainer: Hadley Wickham <h.wickham@gmail.com>
-Description: Scales map data to aesthetics, and provide
+Version: 0.2.5
+Authors@R: c(
+    person("Hadley", "Wickham", , "hadley@rstudio.com", c("aut", "cre")),
+    person("RStudio", role = "cph")
+    )
+Title: Scale Functions for Visualization
+Description: Graphical scales map data to aesthetics, and provide
     methods for automatically determining breaks and labels
     for axes and legends.
 URL: https://github.com/hadley/scales
 BugReports: https://github.com/hadley/scales/issues
 Depends: R (>= 2.13)
-Imports: RColorBrewer, dichromat, munsell (>= 0.2), plyr (>= 1.2),
-        labeling, methods
+Imports: RColorBrewer, dichromat, plyr, munsell (>= 0.2), labeling,
+        methods, Rcpp
+LinkingTo: Rcpp
 Suggests: testthat (>= 0.8)
 License: MIT + file LICENSE
 LazyLoad: yes
-Roxygen: list(wrap = FALSE)
-BuildManual: yes
-Packaged: 2014-04-21 22:24:36 UTC; hadley
-NeedsCompilation: no
+NeedsCompilation: yes
+Packaged: 2015-06-12 16:14:42 UTC; hadley
+Author: Hadley Wickham [aut, cre],
+  RStudio [cph]
+Maintainer: Hadley Wickham <hadley@rstudio.com>
 Repository: CRAN
-Date/Publication: 2014-04-22 10:50:55
+Date/Publication: 2015-06-12 23:50:17
