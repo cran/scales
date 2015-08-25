@@ -1,5 +1,5 @@
 Package: scales
-Version: 0.2.5
+Version: 0.3.0
 Authors@R: c(
     person("Hadley", "Wickham", , "hadley@rstudio.com", c("aut", "cre")),
     person("RStudio", role = "cph")
@@ -18,9 +18,9 @@ Suggests: testthat (>= 0.8)
 License: MIT + file LICENSE
 LazyLoad: yes
 NeedsCompilation: yes
-Packaged: 2015-06-12 16:14:42 UTC; hadley
+Packaged: 2015-08-24 18:41:17 UTC; hadley
 Author: Hadley Wickham [aut, cre],
   RStudio [cph]
 Maintainer: Hadley Wickham <hadley@rstudio.com>
 Repository: CRAN
-Date/Publication: 2015-06-12 23:50:17
+Date/Publication: 2015-08-25 00:48:31

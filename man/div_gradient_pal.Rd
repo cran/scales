@@ -14,18 +14,18 @@ div_gradient_pal(low = mnsl("10B 4/6"), mid = mnsl("N 8/0"),
 
 \item{high}{colour for high end of gradient.}
 
-\item{space}{colour space in which to calculate gradient.  "Lab" usually
-best unless gradient goes through white.}
+\item{space}{colour space in which to calculate gradient. Must be "Lab" -
+other values are deprecated.}
 }
 \description{
 Diverging colour gradient (continous).
 }
 \examples{
-x <- seq(-1, 1, length = 100)
+x <- seq(-1, 1, length.out = 100)
 r <- sqrt(outer(x^2, x^2, "+"))
-image(r, col = div_gradient_pal()(seq(0, 1, length = 12)))
-image(r, col = div_gradient_pal()(seq(0, 1, length = 30)))
-image(r, col = div_gradient_pal()(seq(0, 1, length = 100)))
+image(r, col = div_gradient_pal()(seq(0, 1, length.out = 12)))
+image(r, col = div_gradient_pal()(seq(0, 1, length.out = 30)))
+image(r, col = div_gradient_pal()(seq(0, 1, length.out = 100)))
 
 library(munsell)
 image(r, col = div_gradient_pal(low =
