@@ -20,7 +20,7 @@ from_date <- function(x) {
   structure(as.numeric(x), names = names(x))
 }
 
-#' Transformation for times (class POSIXt).
+#' Transformation for date-times (class POSIXt).
 #'
 #' @param tz Optionally supply the time zone.  If \code{NULL}, the default,
 #'   the time zone will be extracted from first input with a non-null tz.
@@ -50,6 +50,53 @@ time_trans <- function(tz = NULL) {
   }
 
   trans_new("time", "from_time", "to_time", breaks = pretty_breaks())
+}
+
+#' Transformation for times (class hms).
+#'
+#' @export
+#' @examples
+#' if (require("hms")) {
+#' hms <- round(runif(10) * 86400)
+#' t <- hms_trans()
+#' t$transform(hms)
+#' t$inverse(t$transform(hms))
+#' t$breaks(hms)
+#' }
+hms_trans <- function() {
+  trans_new(
+    "hms",
+    transform = function(x) {
+      structure(as.numeric(x), names = names(x))
+    },
+    inverse = hms::as.hms,
+    breaks = time_breaks()
+  )
+}
+
+time_breaks <- function(n = 5) {
+  function(x) {
+    rng <- as.numeric(range(x))
+    diff <- rng[2] - rng[1]
+
+    if (diff <= 2 * 60) {
+      scale <- 1
+    } else if (diff <= 2 * 3600) {
+      scale <- 60
+    } else if (diff <= 2 * 86400) {
+      scale <- 3600
+    } else {
+      scale <- 86400
+    }
+
+    rng <- rng / scale
+    breaks <- labeling::extended(
+      rng[1], rng[2], n,
+      Q = c(1, 2, 1.5, 4, 3),
+      only.loose = FALSE
+    )
+    hms::as.hms(breaks * scale)
+  }
 }
 
 
