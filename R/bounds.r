@@ -3,7 +3,7 @@
 #' @param x continuous vector of values to manipulate.
 #' @param to output range (numeric vector of length two)
 #' @param from input range (vector of length two).  If not given, is
-#'   calculated from the range of \code{x}
+#'   calculated from the range of `x`
 #' @param ... other arguments passed on to methods
 #' @keywords manip
 #' @export
@@ -26,7 +26,12 @@ rescale.numeric <- function(x, to = c(0, 1), from = range(x, na.rm = TRUE, finit
 }
 
 #' @export
-rescale.NULL <- function(...)  NULL
+rescale.NULL <- function(...) NULL
+
+#' @rdname rescale
+#' @export
+rescale.dist <- rescale.numeric
+
 
 #' @rdname rescale
 #' @export
@@ -60,7 +65,7 @@ rescale.integer64 <- function(x, to = c(0, 1), from = range(x, na.rm = TRUE), ..
 #' @param x vector of values to manipulate.
 #' @param to output range (numeric vector of length two)
 #' @param from input range (vector of length two).  If not given, is
-#'   calculated from the range of \code{x}
+#'   calculated from the range of `x`
 #' @param mid mid-point of input range
 #' @param ... other arguments passed on to methods
 #' @examples
@@ -74,7 +79,9 @@ rescale_mid <- function(x, to, from, mid, ...) {
 #' @rdname rescale_mid
 #' @export
 rescale_mid.numeric <- function(x, to = c(0, 1), from = range(x, na.rm = TRUE), mid = 0, ...) {
-  if (zero_range(from) || zero_range(to)) return(rep(mean(to), length(x)))
+  if (zero_range(from) || zero_range(to)) {
+    return(ifelse(is.na(x), NA, mean(to)))
+  }
 
   extent <- 2 * max(abs(from - mid))
   (x - mid) / extent * diff(to) + mean(to)
@@ -86,6 +93,11 @@ rescale_mid.NULL <- function(...) NULL
 #' @rdname rescale_mid
 #' @export
 rescale_mid.logical <- rescale_mid.numeric
+
+#' @rdname rescale_mid
+#' @export
+rescale_mid.dist <- rescale_mid.numeric
+
 
 #' @rdname rescale_mid
 #' @export
@@ -108,7 +120,9 @@ rescale_mid.Date <- rescale_mid.POSIXt
 #' @rdname rescale_mid
 #' @export
 rescale_mid.integer64 <- function(x, to = c(0, 1), from = range(x, na.rm = TRUE), mid = 0, ...) {
-  if (zero_range(from, tol = 0) || zero_range(to)) return(rep(mean(to), length(x)))
+  if (zero_range(from, tol = 0) || zero_range(to)) {
+    return(ifelse(is.na(x), NA, mean(to)))
+  }
 
   extent <- 2 * max(abs(from - mid))
   (x - mid) / extent * diff(to) + mean(to)
@@ -121,7 +135,7 @@ rescale_mid.integer64 <- function(x, to = c(0, 1), from = range(x, na.rm = TRUE)
 #' @param x numeric vector of values to manipulate.
 #' @param to output range (numeric vector of length two)
 #' @param from input range (numeric vector of length two).  If not given, is
-#'   calculated from the range of \code{x}
+#'   calculated from the range of `x`
 #' @examples
 #' rescale_max(1:100)
 #' rescale_max(runif(50))
@@ -130,7 +144,7 @@ rescale_max <- function(x, to = c(0, 1), from = range(x, na.rm = TRUE)) {
   x / from[2] * to[2]
 }
 
-#' Don't peform rescaling
+#' Don't perform rescaling
 #'
 #' @param x numeric vector of values to manipulate.
 #' @param ... all other arguments ignored
@@ -146,7 +160,7 @@ rescale_none <- function(x, ...) {
 #' @export
 #' @param x numeric vector of values to manipulate.
 #' @param range numeric vector of length two giving desired output range.
-#' @param only.finite if \code{TRUE} (the default), will only modify
+#' @param only.finite if `TRUE` (the default), will only modify
 #'   finite values.
 #' @export
 #' @examples
@@ -205,18 +219,16 @@ squish_infinite <- function(x, range = c(0, 1)) {
 #' Expand a range with a multiplicative or additive constant.
 #'
 #' @param range range of data, numeric vector of length 2
-#' @param mul multiplicative constract
+#' @param mul multiplicative constant
 #' @param add additive constant
 #' @param zero_width distance to use if range has zero width
 #' @export
 expand_range <- function(range, mul = 0, add = 0, zero_width = 1) {
   if (is.null(range)) return()
 
-  if (zero_range(range)) {
-    c(range[1] - zero_width / 2, range[1] + zero_width / 2)
-  } else {
-    range + c(-1, 1) * (diff(range) * mul + add)
-  }
+  width <- if (zero_range(range)) zero_width else diff(range)
+
+  range + c(-1, 1) * (width * mul + add)
 }
 
 #' Determine if range of vector is close to zero, with a specified tolerance
@@ -253,12 +265,12 @@ expand_range <- function(range, mul = 0, add = 0, zero_width = 1) {
 #' @export
 #' @param x numeric range: vector of length 2
 #' @param tol A value specifying the tolerance.
-#' @return logical \code{TRUE} if the relative difference of the endpoints of
+#' @return logical `TRUE` if the relative difference of the endpoints of
 #' the range are not distinguishable from 0.
 zero_range <- function(x, tol = 1000 * .Machine$double.eps) {
   if (length(x) == 1) return(TRUE)
   if (length(x) != 2) stop("x must be length 1 or 2")
-  if (any(is.na(x)))  return(NA)
+  if (any(is.na(x))) return(NA)
 
   # Special case: if they are equal as determined by ==, then there
   # is zero range. Also handles (Inf, Inf) and (-Inf, -Inf)
@@ -276,5 +288,5 @@ zero_range <- function(x, tol = 1000 * .Machine$double.eps) {
 
   # If x[1] - x[2] (scaled to 1) is smaller than tol, then return
   # TRUE; otherwise return FALSE
-  abs((x[1] - x[2])/m) < tol
+  abs((x[1] - x[2]) / m) < tol
 }

@@ -4,6 +4,7 @@
 \alias{rescale_mid}
 \alias{rescale_mid.numeric}
 \alias{rescale_mid.logical}
+\alias{rescale_mid.dist}
 \alias{rescale_mid.POSIXt}
 \alias{rescale_mid.Date}
 \alias{rescale_mid.integer64}
@@ -17,14 +18,17 @@ rescale_mid(x, to, from, mid, ...)
 \method{rescale_mid}{logical}(x, to = c(0, 1), from = range(x, na.rm =
   TRUE), mid = 0, ...)
 
-\method{rescale_mid}{POSIXt}(x, to = c(0, 1), from = range(x, na.rm = TRUE),
-  mid, ...)
-
-\method{rescale_mid}{Date}(x, to = c(0, 1), from = range(x, na.rm = TRUE),
-  mid, ...)
-
-\method{rescale_mid}{integer64}(x, to = c(0, 1), from = range(x, na.rm =
+\method{rescale_mid}{dist}(x, to = c(0, 1), from = range(x, na.rm =
   TRUE), mid = 0, ...)
+
+\method{rescale_mid}{POSIXt}(x, to = c(0, 1), from = range(x, na.rm =
+  TRUE), mid, ...)
+
+\method{rescale_mid}{Date}(x, to = c(0, 1), from = range(x, na.rm =
+  TRUE), mid, ...)
+
+\method{rescale_mid}{integer64}(x, to = c(0, 1), from = range(x, na.rm
+  = TRUE), mid = 0, ...)
 }
 \arguments{
 \item{x}{vector of values to manipulate.}

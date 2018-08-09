@@ -5,7 +5,8 @@ asn_trans <- function() {
   trans_new(
     "asn",
     function(x) 2 * asin(sqrt(x)),
-    function(x) sin(x / 2) ^ 2)
+    function(x) sin(x / 2)^2
+  )
 }
 
 #' Arc-tangent transformation.
@@ -15,19 +16,77 @@ atanh_trans <- function() {
   trans_new("atanh", "atanh", "tanh")
 }
 
-#' Box-Cox power transformation.
+#' Box-Cox & modulus transformations.
 #'
-#' @param p Exponent of boxcox transformation.
-#' @references See \url{http://en.wikipedia.org/wiki/Power_transform} for
-#   more details on method.
+#' The Box-Cox transformation is a flexible transformation, often used to
+#' transform data towards normality. The modulus transformation generalises
+#' Box-Cox to also work with negative values.
+#'
+#' The Box-Cox power transformation (type 1) requires strictly positive values and
+#' takes the following form for `y > 0`:
+#' \deqn{y^{(\lambda)} = \frac{y^\lambda - 1}{\lambda}}{y^(\lambda) = (y^\lambda - 1)/\lambda}
+#' When `y = 0`, the natural log transform is used.
+#'
+#' The modulus transformation implements a generalisation of the Box-Cox
+#' transformation that works for data with both positive and negative values.
+#' The equation takes the following forms, when `y != 0` :
+#' \deqn{y^{(\lambda)} = sign(y) * \frac{(|y| + 1)^\lambda - 1}{\lambda}}{
+#' y^(\lambda) = sign(y)*((|y|+1)^\lambda - 1)/\lambda}
+#' and when `y = 0`: \deqn{y^{(\lambda)} =  sign(y) * \ln(|y| + 1)}{
+#' y^(\lambda) = sign(y) * ln(|y| + 1)}
+#'
+#' @param p Transformation exponent, \eqn{\lambda}.
+#' @param offset Constant offset. 0 for Box-Cox type 1,
+#'   otherwise any non-negative constant (Box-Cox type 2). `modulus_trans()`
+#'   sets the default to 1.
+#' @references Box, G. E., & Cox, D. R. (1964). An analysis of transformations.
+#' Journal of the Royal Statistical Society. Series B (Methodological), 211-252.
+#' \url{https://www.jstor.org/stable/2984418}
+#'
+#' John, J. A., & Draper, N. R. (1980).
+#' An alternative family of transformations. Applied Statistics, 190-197.
+#' \url{http://www.jstor.org/stable/2986305}
 #' @export
-boxcox_trans <- function(p) {
-  if (abs(p) < 1e-07) return(log_trans())
+boxcox_trans <- function(p, offset = 0) {
+  trans <- function(x) {
+    if (any((x + offset) < 0)) {
+      stop("boxcox_trans must be given only positive values. Consider using modulus_trans instead?",
+        call. = F
+      )
+    }
+    if (abs(p) < 1e-07) {
+      log(x + offset)
+    } else {
+      ((x + offset)^p - 1) / p
+    }
+  }
 
-  trans <- function(x) (x ^ p - 1) / p * sign(x - 1)
-  inv <- function(x) (abs(x) * p + 1 * sign(x)) ^ (1 / p)
+  inv <- function(x) {
+    if (abs(p) < 1e-07) {
+      exp(x) - offset
+    } else {
+      (x * p + 1)^(1 / p) - offset
+    }
+  }
+
   trans_new(
-    paste0("pow-", format(p)), trans, inv)
+    paste0("pow-", format(p)), trans, inv
+  )
+}
+
+#' @rdname boxcox_trans
+#' @export
+modulus_trans <- function(p, offset = 1) {
+  if (abs(p) < 1e-07) {
+    trans <- function(x) sign(x) * log(abs(x) + offset)
+    inv <- function(x) sign(x) * (exp(abs(x)) - offset)
+  } else {
+    trans <- function(x) sign(x) * ((abs(x) + offset)^p - 1) / p
+    inv <- function(x) sign(x) * ((abs(x) * p + 1)^(1 / p) - offset)
+  }
+  trans_new(
+    paste0("mt-pow-", format(p)), trans, inv
+  )
 }
 
 #' Exponential transformation (inverse of log transformation).
@@ -35,10 +94,12 @@ boxcox_trans <- function(p) {
 #' @param base Base of logarithm
 #' @export
 exp_trans <- function(base = exp(1)) {
+  force(base)
   trans_new(
     paste0("power-", format(base)),
-    function(x) base ^ x,
-    function(x) log(x, base = base))
+    function(x) base^x,
+    function(x) log(x, base = base)
+  )
 }
 
 #' Identity transformation (do nothing).
@@ -55,11 +116,14 @@ identity_trans <- function() {
 #' @aliases log_trans log10_trans log2_trans
 #' @export log_trans log10_trans log2_trans
 log_trans <- function(base = exp(1)) {
+  force(base)
   trans <- function(x) log(x, base)
-  inv <- function(x) base ^ x
+  inv <- function(x) base^x
 
   trans_new(paste0("log-", format(base)), trans, inv,
-    log_breaks(base = base), domain = c(1e-100, Inf))
+    log_breaks(base = base),
+    domain = c(1e-100, Inf)
+  )
 }
 log10_trans <- function() {
   log_trans(10)
@@ -93,7 +157,8 @@ probability_trans <- function(distribution, ...) {
   trans_new(
     paste0("prob-", distribution),
     function(x) qfun(x, ...),
-    function(x) pfun(x, ...))
+    function(x) pfun(x, ...)
+  )
 }
 logit_trans <- function() probability_trans("logis")
 probit_trans <- function() probability_trans("norm")
@@ -102,9 +167,11 @@ probit_trans <- function() probability_trans("norm")
 #'
 #' @export
 reciprocal_trans <- function() {
-  trans_new("reciprocal",
+  trans_new(
+    "reciprocal",
     function(x) 1 / x,
-    function(x) 1 / x)
+    function(x) 1 / x
+  )
 }
 
 #' Reverse transformation.
@@ -115,12 +182,29 @@ reverse_trans <- function() {
     "reverse",
     function(x) -x,
     function(x) -x,
-    minor_breaks = regular_minor_breaks(reverse = TRUE))
+    minor_breaks = regular_minor_breaks(reverse = TRUE)
+  )
 }
 
 #' Square-root transformation.
 #'
 #' @export
 sqrt_trans <- function() {
-  trans_new("sqrt", "sqrt", function(x) x ^ 2, domain = c(0, Inf))
+  trans_new("sqrt", "sqrt", function(x) x^2, domain = c(0, Inf))
+}
+
+#' Pseudo-log transformation
+#'
+#' A transformation mapping numbers to a signed logarithmic scale
+#' with a smooth transition to linear scale around 0.
+#'
+#' @param sigma scaling factor for the linear part
+#' @param base approximate logarithm base used
+#' @export
+pseudo_log_trans <- function(sigma = 1, base = exp(1)) {
+  trans_new(
+    "pseudo_log",
+    function(x) asinh(x / (2 * sigma)) / log(base),
+    function(x) 2 * sigma * sinh(x * log(base))
+  )
 }

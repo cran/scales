@@ -4,7 +4,7 @@
 #' as the information needed to create pleasing breaks and labels. The breaks
 #' function is applied on the transformed range of the range, and it's
 #' expected that the labels function will perform some kind of inverse
-#' tranformation on these breaks to give them labels that are meaningful on
+#' transformation on these breaks to give them labels that are meaningful on
 #' the original scale.
 #'
 #' @param name transformation name
@@ -27,6 +27,7 @@ trans_new <- function(name, transform, inverse, breaks = extended_breaks(),
                       format = format_format(), domain = c(-Inf, Inf)) {
   if (is.character(transform)) transform <- match.fun(transform)
   if (is.character(inverse)) inverse <- match.fun(inverse)
+  force_all(name, breaks, minor_breaks, format, domain)
 
   structure(
     list(
@@ -36,7 +37,8 @@ trans_new <- function(name, transform, inverse, breaks = extended_breaks(),
       breaks = breaks,
       minor_breaks = minor_breaks,
       format = format,
-      domain = domain),
+      domain = domain
+    ),
     class = "trans"
   )
 }
@@ -59,11 +61,11 @@ as.trans <- function(x) {
 
 #' Compute range of transformed values.
 #'
-#' Silently drops any ranges outside of the domain of \code{trans}.
+#' Silently drops any ranges outside of the domain of `trans`.
 #'
 #' @param trans a transformation object, or the name of a transformation object
 #'   given as a string.
-#' @param x a numeric vector to compute the rande of
+#' @param x a numeric vector to compute the range of
 #' @export
 trans_range <- function(trans, x) {
   trans <- as.trans(trans)

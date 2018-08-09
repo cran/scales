@@ -11,18 +11,19 @@ date_trans <- function() {
   trans_new("date", "from_date", "to_date", breaks = pretty_breaks())
 }
 
-to_date <- function(x)   structure(x, class = "Date")
+to_date <- function(x) structure(x, class = "Date")
 from_date <- function(x) {
   if (!inherits(x, "Date")) {
     stop("Invalid input: date_trans works with objects of class Date only",
-      call. = FALSE)
+      call. = FALSE
+    )
   }
   structure(as.numeric(x), names = names(x))
 }
 
 #' Transformation for date-times (class POSIXt).
 #'
-#' @param tz Optionally supply the time zone.  If \code{NULL}, the default,
+#' @param tz Optionally supply the time zone.  If `NULL`, the default,
 #'   the time zone will be extracted from first input with a non-null tz.
 #' @export
 #' @examples
@@ -32,16 +33,17 @@ from_date <- function(x) {
 #' t$inverse(t$transform(hours))
 #' t$format(t$breaks(range(hours)))
 time_trans <- function(tz = NULL) {
-
+  force(tz)
   to_time <- function(x) {
-    force(x)
     structure(x, class = c("POSIXt", "POSIXct"), tzone = tz)
   }
 
   from_time <- function(x) {
     if (!inherits(x, "POSIXct")) {
       stop("Invalid input: time_trans works with objects of class ",
-        "POSIXct only", call. = FALSE)
+        "POSIXct only",
+        call. = FALSE
+      )
     }
     if (is.null(tz)) {
       tz <<- attr(as.POSIXlt(x), "tzone")[[1]]
@@ -75,6 +77,7 @@ hms_trans <- function() {
 }
 
 time_breaks <- function(n = 5) {
+  force(n)
   function(x) {
     rng <- as.numeric(range(x))
     diff <- rng[2] - rng[1]
@@ -104,20 +107,10 @@ time_breaks <- function(n = 5) {
 #'
 #' @param width an interval specification, one of "sec", "min", "hour",
 #'   "day", "week", "month", "year". Can be by an integer and a space, or
-#'   followed by "s".
+#'   followed by "s". Fractional seconds are supported.
 #' @export
 date_breaks <- function(width = "1 month") {
+  force(width)
   function(x) fullseq(x, width)
 }
 
-
-#' Formatted dates.
-#'
-#' @param format Date format using standard POSIX specification.  See
-#'  \code{\link{strptime}} for possible formats.
-#' @param tz a time zone name, see \code{\link{timezones}}. Defaults
-#'  to UTC
-#' @export
-date_format <- function(format = "%Y-%m-%d", tz = 'UTC') {
-  function(x) format(x, format, tz = tz)
-}

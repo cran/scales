@@ -1,8 +1,8 @@
 #' Pretty breaks.
-#' Uses default R break algorithm as implemented in \code{\link{pretty}}.
+#' Uses default R break algorithm as implemented in [pretty()].
 #'
 #' @param n desired number of breaks
-#' @param ... other arguments passed on to \code{\link{pretty}}
+#' @param ... other arguments passed on to [pretty()]
 #' @export
 #' @examples
 #' pretty_breaks()(1:10)
@@ -10,6 +10,7 @@
 #' pretty_breaks()(as.Date(c("2008-01-01", "2009-01-01")))
 #' pretty_breaks()(as.Date(c("2008-01-01", "2090-01-01")))
 pretty_breaks <- function(n = 5, ...) {
+  force_all(n, ...)
   function(x) {
     breaks <- pretty(x, n, ...)
     names(breaks) <- attr(breaks, "labels")
@@ -22,7 +23,7 @@ pretty_breaks <- function(n = 5, ...) {
 #' \pkg{labeling} package.
 #'
 #' @param n desired number of breaks
-#' @param ... other arguments passed on to \code{\link[labeling]{extended}}
+#' @param ... other arguments passed on to [labeling::extended()]
 #' @references Talbot, J., Lin, S., Hanrahan, P. (2010) An Extension of
 #'  Wilkinson's Algorithm for Positioning Tick Labels on Axes, InfoVis
 #'  2010.
@@ -38,7 +39,7 @@ extended_breaks <- function(n = 5, ...) {
     }
 
     rng <- range(x)
-    labeling::extended(rng[1], rng[2], n, only.loose = FALSE, ...)
+    labeling::extended(rng[1], rng[2], n, ...)
   }
 }
 
@@ -50,24 +51,97 @@ extended_breaks <- function(n = 5, ...) {
 #' @examples
 #' log_breaks()(c(1, 1e6))
 #' log_breaks()(c(1, 1e5))
+#' log_breaks()(c(1664, 14008))
+#' log_breaks()(c(407, 3430))
+#' log_breaks()(c(1761, 8557))
 log_breaks <- function(n = 5, base = 10) {
+  force_all(n, base)
   function(x) {
     rng <- log(range(x, na.rm = TRUE), base = base)
     min <- floor(rng[1])
     max <- ceiling(rng[2])
 
-    if (max == min) return(base ^ min)
+    if (max == min) return(base^min)
 
     by <- floor((max - min) / n) + 1
-    base ^ seq(min, max, by = by)
+    breaks <- base^seq(min, max, by = by)
+    relevant_breaks <- base^rng[1] <= breaks & breaks <= base^rng[2]
+    if (sum(relevant_breaks) >= (n - 2)) return(breaks)
+
+    # the easy solution to get more breaks is to decrease 'by'
+    while (by > 1) {
+      by <- by - 1
+      breaks <- base^seq(min, max, by = by)
+      relevant_breaks <- base^rng[1] <= breaks & breaks <= base^rng[2]
+      if (sum(relevant_breaks) >= (n - 2)) return(breaks)
+    }
+    log_sub_breaks(rng, n = n, base = base)
   }
+}
+
+#' Intermediate log-scale breaks
+#'
+#' Integer powers of base do not always return sufficient breaks.
+#' \code{log_sub_breaks} adds intermediate breaks which are integer multiples of
+#' integer powers of base. See Details for the implementation.
+#' @param rng log-range of the values
+#' @inheritParams log_breaks
+#' @author Thierry Onkelinx, \email{thierry.onkelinx@inbo.be}
+#' @details The \code{log_breaks} algorithm will always use the integer power
+#' of \code{base} so the set of integers to multiply with will always
+#' contain 1. \code{log_sub_breaks} searches for the integer between 1 and
+#' \code{base} which splits the interval approximately in half; e.g., in the
+#' case of \code{base = 10}, this integer is 3 because \code{log10(3) = 0.477}.
+#' This leaves 2 intervals: \code{c(1, 3)} and \code{c(3, 10)}. The
+#' algorithm then looks for another integer which splits the largest remaining
+#' interval (in the log-scale) approximately in half, in this case 5
+#' (\code{log10(5) = 0.699}).
+#'
+#' The generic algorithm starts with a set of integers \code{steps} containing
+#' only 1 and a set of candidate integers containing all integers larger than 1
+#' and smaller than \code{base}. Then for each remaining candidate integer
+#' \code{x}, the smallest interval (on the log-scale) in the vector
+#' \code{sort(c(x, steps, base))} is calculated. The candidate \code{x} which
+#' yields the largest minimal interval is added to \code{steps} and removed from
+#' the candidate set. This is repeated until either a sufficient number of
+#' breaks, \code{>= n-2}, are returned or all candidates have been used.
+#' @noRd
+log_sub_breaks <- function(rng, n = 5, base = 10) {
+  min <- floor(rng[1])
+  max <- ceiling(rng[2])
+  if (base <= 2) {
+    return(base^(min:max))
+  }
+  steps <- 1
+  # 'delta()' calculates the smallest distance in the log scale between the
+  # currectly selected breaks and a new candidate 'x'
+  delta <- function(x) {
+    min(diff(log(sort(c(x, steps, base)), base = base)))
+  }
+  candidate <- seq_len(base)
+  candidate <- candidate[1 < candidate & candidate < base]
+  while (length(candidate)) {
+    best <- which.max(vapply(candidate, delta, 0))
+    steps <- c(steps, candidate[best])
+    candidate <- candidate[-best]
+
+    breaks <- as.vector(outer(base^seq(min, max), steps))
+    relevant_breaks <- base^rng[1] <= breaks & breaks <= base^rng[2]
+    if (sum(relevant_breaks) >= (n - 2)) {
+      break
+    }
+  }
+  breaks <- sort(breaks)
+  lower_end <- pmax(min(which(base^rng[1] <= breaks)) - 1, 1)
+  upper_end <- pmin(max(which(breaks <= base^rng[2])) + 1, length(breaks))
+  breaks[lower_end:upper_end]
 }
 
 #' Pretty breaks on transformed scale.
 #'
 #' These often do not produce very attractive breaks.
 #'
-#' @param trans function of single variable, \code{x}, that given a numeric
+#' @param trans function of single variable, `x`, that given a numeric
 #'   vector returns the transformed values
 #' @param inv inverse of the transformation function
 #' @param n desired number of ticks
@@ -81,7 +155,7 @@ log_breaks <- function(n = 5, base = 10) {
 trans_breaks <- function(trans, inv, n = 5, ...) {
   trans <- match.fun(trans)
   inv <- match.fun(inv)
-
+  force_all(n, ...)
   function(x) {
     inv(pretty(trans(x), n, ...))
   }
@@ -121,7 +195,6 @@ trans_breaks <- function(trans, inv, n = 5, ...) {
 #' cbreaks(c(0, 100), breaks = c(15, 20, 80),
 #'   labels = expression(alpha, beta, gamma))
 cbreaks <- function(range, breaks = extended_breaks(), labels = scientific_format()) {
-
   if (zero_range(range)) {
     return(list(breaks = range[1], labels = format(range[1])))
   }
@@ -131,7 +204,8 @@ cbreaks <- function(range, breaks = extended_breaks(), labels = scientific_forma
 
     if (!is.function(labels)) {
       stop("Labels can only be manually specified in conjunction with breaks",
-        call. = FALSE)
+        call. = FALSE
+      )
     }
   }
 
@@ -151,7 +225,7 @@ cbreaks <- function(range, breaks = extended_breaks(), labels = scientific_forma
   list(breaks = breaks, labels = labels)
 }
 
-#' Minor breaks
+#' Minor breaks.
 #' Places minor breaks between major breaks.
 #'
 #' @param reverse if TRUE, calculates the minor breaks for a reversed scale
@@ -159,7 +233,7 @@ cbreaks <- function(range, breaks = extended_breaks(), labels = scientific_forma
 #' @examples
 #' m <- extended_breaks()(c(1, 10))
 #' regular_minor_breaks()(m, c(1, 10), n = 2)
-#' 
+#'
 #' n <- extended_breaks()(c(0, -9))
 #' regular_minor_breaks(reverse = TRUE)(n, c(0, -9), n = 2)
 regular_minor_breaks <- function(reverse = FALSE) {

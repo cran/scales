@@ -8,15 +8,19 @@
 floor_date <- function(date, time) {
   prec <- parse_unit_spec(time)
   if (prec$unit == "day") {
-    structure(round_any(as.numeric(date), prec$mult), class="Date")
+    structure(round_any(as.numeric(date), prec$mult), class = "Date")
   } else {
     as.Date(cut(date, time, right = TRUE, include.lowest = TRUE))
   }
 }
+
 floor_time <- function(date, time) {
   to_time <- function(x) {
     force(x)
-    structure(x, class = c("POSIXt", "POSIXct"))
+    structure(x,
+      class = c("POSIXt", "POSIXct"),
+      tzone = attr(date, "tzone", exact = TRUE) %||% ""
+    )
   }
 
   prec <- parse_unit_spec(time)
