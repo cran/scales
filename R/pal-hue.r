@@ -1,4 +1,4 @@
-#' Hue palette (discrete).
+#' Hue palette (discrete)
 #'
 #' @param h range of hues to use, in \[0, 360]
 #' @param l luminance (lightness), in \[0, 100]
@@ -23,6 +23,9 @@
 #' show_col(hue_pal(h = c(180, 270))(9))
 #' show_col(hue_pal(h = c(270, 360))(9))
 hue_pal <- function(h = c(0, 360) + 15, c = 100, l = 65, h.start = 0, direction = 1) {
+  stopifnot(length(h) == 2)
+  stopifnot(length(c) == 1)
+  stopifnot(length(l) == 1)
   force_all(h, c, l, h.start, direction)
   function(n) {
     if (n == 0) {
@@ -36,6 +39,7 @@ hue_pal <- function(h = c(0, 360) + 15, c = 100, l = 65, h.start = 0, direction 
     rotate <- function(x) (x + h.start) %% 360 * direction
     hues <- rotate(seq(h[1], h[2], length.out = n))
 
-    grDevices::hcl(hues, c, l)
+    hcl <- cbind(hues, c, l)
+    farver::encode_colour(hcl, from = "hcl")
   }
 }

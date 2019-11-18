@@ -1,4 +1,4 @@
-#' Continuous scale.
+#' Continuous scale
 #'
 #' @param x vector of continuous values to scale
 #' @param palette palette to use.
@@ -30,6 +30,8 @@ cscale <- function(x, palette, na.value = NA_real_, trans = identity_trans()) {
 
 #' Train (update) a continuous scale
 #'
+#' Strips attributes and always returns a numeric vector
+#'
 #' @inheritParams train_discrete
 #' @export
 train_continuous <- function(new, existing = NULL) {
@@ -38,6 +40,7 @@ train_continuous <- function(new, existing = NULL) {
   if (is.factor(new) || !typeof(new) %in% c("integer", "double")) {
     stop("Discrete value supplied to continuous scale", call. = FALSE)
   }
+
   suppressWarnings(range(existing, new, na.rm = TRUE, finite = TRUE))
 }
 

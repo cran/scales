@@ -4,11 +4,16 @@
 \alias{trans_new}
 \alias{trans}
 \alias{is.trans}
-\title{Create a new transformation object.}
+\alias{as.trans}
+\title{Create a new transformation object}
 \usage{
 trans_new(name, transform, inverse, breaks = extended_breaks(),
   minor_breaks = regular_minor_breaks(), format = format_format(),
   domain = c(-Inf, Inf))
+
+is.trans(x)
+
+as.trans(x)
 }
 \arguments{
 \item{name}{transformation name}
@@ -41,3 +46,4 @@ the original scale.
 \seealso{
 \Sexpr[results=rd,stage=build]{scales:::seealso_trans()}
 }
+\keyword{internal}
