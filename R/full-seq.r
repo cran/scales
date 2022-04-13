@@ -5,12 +5,13 @@
 #' @param ... other arguments passed on to methods
 #' @keywords internal
 #' @export
-#' @seealso [plyr::round_any()]
 fullseq <- function(range, size, ...) UseMethod("fullseq")
 
 #' @export
 fullseq.numeric <- function(range, size, ..., pad = FALSE) {
-  if (zero_range(range)) return(range + size * c(-1, 1) / 2)
+  if (zero_range(range)) {
+    return(range + size * c(-1, 1) / 2)
+  }
 
   x <- seq(
     round_any(range[1], size, floor),

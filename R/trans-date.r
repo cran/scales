@@ -8,7 +8,12 @@
 #' t$inverse(t$transform(years))
 #' t$format(t$breaks(range(years)))
 date_trans <- function() {
-  trans_new("date", "from_date", "to_date", breaks = breaks_pretty())
+  trans_new("date",
+    transform = "from_date",
+    inverse = "to_date",
+    breaks = breaks_pretty(),
+    domain = to_date(c(-Inf, Inf))
+  )
 }
 
 to_date <- function(x) structure(x, class = "Date")
@@ -27,7 +32,7 @@ from_date <- function(x) {
 #'   the time zone will be extracted from first input with a non-null tz.
 #' @export
 #' @examples
-#' hours <- seq(ISOdate(2000,3,20, tz = ""), by = "hour", length.out = 10)
+#' hours <- seq(ISOdate(2000, 3, 20, tz = ""), by = "hour", length.out = 10)
 #' t <- time_trans()
 #' t$transform(hours)
 #' t$inverse(t$transform(hours))
@@ -51,7 +56,12 @@ time_trans <- function(tz = NULL) {
     structure(as.numeric(x), names = names(x))
   }
 
-  trans_new("time", "from_time", "to_time", breaks = breaks_pretty())
+  trans_new("time",
+    transform = "from_time",
+    inverse = "to_time",
+    breaks = breaks_pretty(),
+    domain = to_time(c(-Inf, Inf))
+  )
 }
 
 #' Transformation for times (class hms)
@@ -59,11 +69,11 @@ time_trans <- function(tz = NULL) {
 #' @export
 #' @examples
 #' if (require("hms")) {
-#' hms <- round(runif(10) * 86400)
-#' t <- hms_trans()
-#' t$transform(hms)
-#' t$inverse(t$transform(hms))
-#' t$breaks(hms)
+#'   hms <- round(runif(10) * 86400)
+#'   t <- hms_trans()
+#'   t$transform(hms)
+#'   t$inverse(t$transform(hms))
+#'   t$breaks(hms)
 #' }
 hms_trans <- function() {
   trans_new(

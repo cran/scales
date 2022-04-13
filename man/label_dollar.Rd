@@ -2,8 +2,6 @@
 % Please edit documentation in R/label-dollar.R
 \name{label_dollar}
 \alias{label_dollar}
-\alias{dollar_format}
-\alias{dollar}
 \title{Label currencies ($100, $2.50, etc)}
 \usage{
 label_dollar(
@@ -15,34 +13,7 @@ label_dollar(
   decimal.mark = ".",
   trim = TRUE,
   largest_with_cents = 1e+05,
-  negative_parens = FALSE,
-  ...
-)
-
-dollar_format(
-  accuracy = NULL,
-  scale = 1,
-  prefix = "$",
-  suffix = "",
-  big.mark = ",",
-  decimal.mark = ".",
-  trim = TRUE,
-  largest_with_cents = 1e+05,
-  negative_parens = FALSE,
-  ...
-)
-
-dollar(
-  x,
-  accuracy = NULL,
-  scale = 1,
-  prefix = "$",
-  suffix = "",
-  big.mark = ",",
-  decimal.mark = ".",
-  trim = TRUE,
-  largest_with_cents = 1e+05,
-  negative_parens = FALSE,
+  negative_parens = deprecated(),
   ...
 )
 }
@@ -53,7 +24,7 @@ values has non-zero fractional component (e.g. cents) and the largest
 value is less than \code{largest_with_cents} which by default is 100,000.}
 
 \item{scale}{A scaling factor: \code{x} will be multiplied by \code{scale} before
-formating. This is useful if the underlying data is very small or very
+formatting. This is useful if the underlying data is very small or very
 large.}
 
 \item{prefix, suffix}{Symbols to display before and after value.}
@@ -66,11 +37,10 @@ decimal point.}
 \item{trim}{Logical, if \code{FALSE}, values are right-justified to a common
 width (see \code{\link[base:format]{base::format()}}).}
 
-\item{negative_parens}{Display negative using parentheses?}
+\item{negative_parens}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
+\code{style_negative = "parens"} instead.}
 
 \item{...}{Other arguments passed on to \code{\link[base:format]{base::format()}}.}
-
-\item{x}{A numeric vector}
 }
 \value{
 All \code{label_()} functions return a "labelling" function, i.e. a function that
@@ -86,19 +56,13 @@ rather than axes.
 Format numbers as currency, rounding values to dollars or cents using
 a convenient heuristic.
 }
-\section{Old interface}{
-
-\code{dollar()} and \code{format_dollar()} are retired; please use \code{label_dollar()}
-instead.
-}
-
 \examples{
 demo_continuous(c(0, 1), labels = label_dollar())
 demo_continuous(c(1, 100), labels = label_dollar())
 
 # Customise currency display with prefix and suffix
 demo_continuous(c(1, 100), labels = label_dollar(prefix = "USD "))
-euro <- dollar_format(
+euro <- label_dollar(
   prefix = "",
   suffix = "\u20ac",
   big.mark = ".",
@@ -107,7 +71,26 @@ euro <- dollar_format(
 demo_continuous(c(1000, 1100), labels = euro)
 
 # Use negative_parens = TRUE for finance style display
-demo_continuous(c(-100, 100), labels = label_dollar(negative_parens = TRUE))
+demo_continuous(c(-100, 100), labels = label_dollar(style_negative = "parens"))
+
+# Use scale_cut to use K/M/B where appropriate
+demo_log10(c(1, 1e16),
+  breaks = log_breaks(7, 1e3),
+  labels = label_dollar(scale_cut = cut_short_scale())
+)
+# cut_short_scale() uses B = one thousand million
+# cut_long_scale() uses B = one million million
+demo_log10(c(1, 1e16),
+  breaks = log_breaks(7, 1e3),
+  labels = label_dollar(scale_cut = cut_long_scale())
+)
+
+# You can also define your own breaks
+gbp <- label_dollar(
+  prefix = "\u00a3",
+  scale_cut = c(0, k = 1e3, m = 1e6, bn = 1e9, tn = 1e12)
+)
+demo_log10(c(1, 1e12), breaks = log_breaks(5, 1e3), labels = gbp)
 }
 \seealso{
 Other labels for continuous scales: 

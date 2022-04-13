@@ -2,6 +2,9 @@
 % Please edit documentation in R/label-number.r
 \name{number}
 \alias{number}
+\alias{cut_short_scale}
+\alias{cut_long_scale}
+\alias{cut_si}
 \title{A low-level numeric formatter}
 \usage{
 number(
@@ -12,13 +15,20 @@ number(
   suffix = "",
   big.mark = " ",
   decimal.mark = ".",
+  style_positive = c("none", "plus"),
+  style_negative = c("hyphen", "minus", "parens"),
+  scale_cut = NULL,
   trim = TRUE,
   ...
 )
+
+cut_short_scale(space = FALSE)
+
+cut_long_scale(space = FALSE)
+
+cut_si(unit)
 }
 \arguments{
-\item{x}{A numeric vector to format.}
-
 \item{accuracy}{A number to round to. Use (e.g.) \code{0.01} to show 2 decimal
 places of precision. If \code{NULL}, the default, uses a heuristic that should
 ensure breaks have the minimum number of digits needed to show the
@@ -27,22 +37,56 @@ difference between adjacent values.
 Applied to rescaled data.}
 
 \item{scale}{A scaling factor: \code{x} will be multiplied by \code{scale} before
-formating. This is useful if the underlying data is very small or very
+formatting. This is useful if the underlying data is very small or very
 large.}
 
-\item{prefix}{Symbols to display before and after value.}
+\item{prefix}{Additional text to display before the number. The suffix is
+applied to absolute value before \code{style_positive} and \code{style_negative} are
+processed so that \code{prefix = "$"} will yield (e.g.) \verb{-$1} and \verb{($1)}.}
 
-\item{suffix}{Symbols to display before and after value.}
+\item{suffix}{Additional text to display after the number.}
 
 \item{big.mark}{Character used between every 3 digits to separate thousands.}
 
 \item{decimal.mark}{The character to be used to indicate the numeric
 decimal point.}
 
+\item{style_positive}{A string that determines the style of positive numbers:
+\itemize{
+\item \code{"none"} (the default): no change, e.g. \code{1}.
+\item \code{"plus"}: preceded by \code{+}, e.g. \code{+1}.
+}}
+
+\item{style_negative}{A string that determines the style of negative numbers:
+\itemize{
+\item \code{"hyphen"} (the default): preceded by a standard hypen \code{-}, e.g. \code{-1}.
+\item \code{"minus"}, uses a proper Unicode minus symbol. This is a typographical
+nicety that ensures \code{-} aligns with the horizontal bar of the
+the horizontal bar of \code{+}.
+\item \code{"parens"}, wrapped in parentheses, e.g. \code{(1)}.
+}}
+
+\item{scale_cut}{Named numeric vector that allows you to rescale large
+(or small) numbers and add a prefix. Built-in helpers include:
+\itemize{
+\item \code{cut_short_scale()}: [10^3, 10^6) = K, [10^6, 10^9) = M, [10^9, 10^12) = B, [10^12, Inf) = T.
+\item \code{cut_long_scale()}: [10^3, 10^6) = K, [10^6, 10^12) = M, [10^12, 10^18) = B, [10^18, Inf) = T.
+\item \code{cut_si(unit)}: uses standard SI units.
+}
+
+If you supply a vector \code{c(a = 100, b = 1000)}, absolute values in the
+range \verb{[0, 100)} will not be rescaled, absolute values in the range \verb{[100, 1000)}
+will be divided by 100 and given the suffix "a", and absolute values in
+the range \verb{[1000, Inf)} will be divided by 1000 and given the suffix "b".}
+
 \item{trim}{Logical, if \code{FALSE}, values are right-justified to a common
 width (see \code{\link[base:format]{base::format()}}).}
 
 \item{...}{Other arguments passed on to \code{\link[base:format]{base::format()}}.}
+
+\item{space}{Add a space before the scale suffix?}
+
+\item{unit}{SI unit abbreviation.}
 }
 \value{
 A character vector of \code{length(x)}.

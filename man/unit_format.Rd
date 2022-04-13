@@ -26,16 +26,18 @@ difference between adjacent values.
 Applied to rescaled data.}
 
 \item{scale}{A scaling factor: \code{x} will be multiplied by \code{scale} before
-formating. This is useful if the underlying data is very small or very
+formatting. This is useful if the underlying data is very small or very
 large.}
 
-\item{prefix}{Symbols to display before and after value.}
+\item{prefix}{Additional text to display before the number. The suffix is
+applied to absolute value before \code{style_positive} and \code{style_negative} are
+processed so that \code{prefix = "$"} will yield (e.g.) \verb{-$1} and \verb{($1)}.}
 
 \item{unit}{The units to append.}
 
 \item{sep}{The separator between the number and the unit label.}
 
-\item{suffix}{Symbols to display before and after value.}
+\item{suffix}{Additional text to display after the number.}
 
 \item{big.mark}{Character used between every 3 digits to separate thousands.}
 
@@ -48,7 +50,8 @@ width (see \code{\link[base:format]{base::format()}}).}
 \item{...}{Other arguments passed on to \code{\link[base:format]{base::format()}}.}
 }
 \description{
-\Sexpr[results=rd, stage=render]{lifecycle::badge("retired")}
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
+
 This function is kept for backward compatiblity; you should either use
 \code{\link[=label_number]{label_number()}} or \code{\link[=label_number_si]{label_number_si()}} instead.
 }

@@ -3,9 +3,6 @@
 \name{label_number}
 \alias{label_number}
 \alias{label_comma}
-\alias{comma}
-\alias{number_format}
-\alias{comma_format}
 \title{Label numbers in decimal format (e.g. 0.12, 1,234)}
 \usage{
 label_number(
@@ -15,47 +12,14 @@ label_number(
   suffix = "",
   big.mark = " ",
   decimal.mark = ".",
+  style_positive = c("none", "plus"),
+  style_negative = c("hyphen", "minus", "parens"),
+  scale_cut = NULL,
   trim = TRUE,
   ...
 )
 
 label_comma(
-  accuracy = NULL,
-  scale = 1,
-  prefix = "",
-  suffix = "",
-  big.mark = ",",
-  decimal.mark = ".",
-  trim = TRUE,
-  digits,
-  ...
-)
-
-comma(
-  x,
-  accuracy = NULL,
-  scale = 1,
-  prefix = "",
-  suffix = "",
-  big.mark = ",",
-  decimal.mark = ".",
-  trim = TRUE,
-  digits,
-  ...
-)
-
-number_format(
-  accuracy = NULL,
-  scale = 1,
-  prefix = "",
-  suffix = "",
-  big.mark = " ",
-  decimal.mark = ".",
-  trim = TRUE,
-  ...
-)
-
-comma_format(
   accuracy = NULL,
   scale = 1,
   prefix = "",
@@ -76,24 +40,54 @@ difference between adjacent values.
 Applied to rescaled data.}
 
 \item{scale}{A scaling factor: \code{x} will be multiplied by \code{scale} before
-formating. This is useful if the underlying data is very small or very
+formatting. This is useful if the underlying data is very small or very
 large.}
 
-\item{prefix, suffix}{Symbols to display before and after value.}
+\item{prefix}{Additional text to display before the number. The suffix is
+applied to absolute value before \code{style_positive} and \code{style_negative} are
+processed so that \code{prefix = "$"} will yield (e.g.) \verb{-$1} and \verb{($1)}.}
+
+\item{suffix}{Additional text to display after the number.}
 
 \item{big.mark}{Character used between every 3 digits to separate thousands.}
 
 \item{decimal.mark}{The character to be used to indicate the numeric
 decimal point.}
 
+\item{style_positive}{A string that determines the style of positive numbers:
+\itemize{
+\item \code{"none"} (the default): no change, e.g. \code{1}.
+\item \code{"plus"}: preceded by \code{+}, e.g. \code{+1}.
+}}
+
+\item{style_negative}{A string that determines the style of negative numbers:
+\itemize{
+\item \code{"hyphen"} (the default): preceded by a standard hypen \code{-}, e.g. \code{-1}.
+\item \code{"minus"}, uses a proper Unicode minus symbol. This is a typographical
+nicety that ensures \code{-} aligns with the horizontal bar of the
+the horizontal bar of \code{+}.
+\item \code{"parens"}, wrapped in parentheses, e.g. \code{(1)}.
+}}
+
+\item{scale_cut}{Named numeric vector that allows you to rescale large
+(or small) numbers and add a prefix. Built-in helpers include:
+\itemize{
+\item \code{cut_short_scale()}: [10^3, 10^6) = K, [10^6, 10^9) = M, [10^9, 10^12) = B, [10^12, Inf) = T.
+\item \code{cut_long_scale()}: [10^3, 10^6) = K, [10^6, 10^12) = M, [10^12, 10^18) = B, [10^18, Inf) = T.
+\item \code{cut_si(unit)}: uses standard SI units.
+}
+
+If you supply a vector \code{c(a = 100, b = 1000)}, absolute values in the
+range \verb{[0, 100)} will not be rescaled, absolute values in the range \verb{[100, 1000)}
+will be divided by 100 and given the suffix "a", and absolute values in
+the range \verb{[1000, Inf)} will be divided by 1000 and given the suffix "b".}
+
 \item{trim}{Logical, if \code{FALSE}, values are right-justified to a common
 width (see \code{\link[base:format]{base::format()}}).}
 
 \item{...}{Other arguments passed on to \code{\link[base:format]{base::format()}}.}
 
-\item{digits}{Deprecated, use \code{accuracy} instead.}
-
-\item{x}{A numeric vector to format.}
+\item{digits}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{accuracy} instead.}
 }
 \value{
 All \code{label_()} functions return a "labelling" function, i.e. a function that
@@ -110,12 +104,6 @@ Use \code{label_number()} force decimal display of numbers (i.e. don't use
 \link[=label_scientific]{scientific} notation). \code{label_comma()} is a special case
 that inserts a comma every three digits.
 }
-\section{Old interface}{
-
-\code{number_format()}, \code{comma_format()}, and \code{comma()} are retired; please use
-\code{label_number()} and \code{label_comma()} instead.
-}
-
 \examples{
 demo_continuous(c(-1e6, 1e6))
 demo_continuous(c(-1e6, 1e6), labels = label_number())
@@ -128,7 +116,38 @@ demo_continuous(c(0, 1e6), labels = label_number(scale = 1 / 1e3))
 demo_continuous(c(0, 1e-6), labels = label_number())
 demo_continuous(c(0, 1e-6), labels = label_number(scale = 1e6))
 
+#' Use scale_cut to automatically add prefixes for large/small numbers
+demo_log10(
+  c(1, 1e9),
+  breaks = log_breaks(10),
+  labels = label_number(scale_cut = cut_short_scale())
+)
+demo_log10(
+  c(1, 1e9),
+  breaks = log_breaks(10),
+  labels = label_number(scale_cut = cut_si("m"))
+)
+demo_log10(
+  c(1e-9, 1),
+  breaks = log_breaks(10),
+  labels = label_number(scale_cut = cut_si("g"))
+)
+# use scale and scale_cut when data already uses SI prefix
+# for example, if data was stored in kg
+demo_log10(
+  c(1e-9, 1),
+  breaks = log_breaks(10),
+  labels = label_number(scale_cut = cut_si("g"), scale = 1e3)
+)
+
+#' # Use style arguments to vary the appearance of positive and negative numbers
+demo_continuous(c(-1e3, 1e3), labels = label_number(
+  style_positive = "plus",
+  style_negative = "minus"
+))
+demo_continuous(c(-1e3, 1e3), labels = label_number(style_negative = "parens"))
+
 # You can use prefix and suffix for other types of display
-demo_continuous(c(32, 212), label = label_number(suffix = "\u00b0F"))
-demo_continuous(c(0, 100), label = label_number(suffix = "\u00b0C"))
+demo_continuous(c(32, 212), labels = label_number(suffix = "\u00b0F"))
+demo_continuous(c(0, 100), labels = label_number(suffix = "\u00b0C"))
 }

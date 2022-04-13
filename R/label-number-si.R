@@ -1,46 +1,50 @@
-#' Label numbers with SI prefixes (2k, 1M, 5T etc)
+#' Label numbers with SI prefixes (2 kg, 5 mm, etc)
 #'
-#' `number_si()` automatically scales and labels with the best SI prefix,
-#' "K" for values \eqn{\ge} 10e3, "M" for \eqn{\ge} 10e6,
-#' "B" for \eqn{\ge} 10e9, and "T" for \eqn{\ge} 10e12.
+#' @description
+#' `r lifecycle::badge("deprecated")`
 #'
-#' @inherit number_format return params
-#' @param unit Optional units specifier.
-#' @param sep Separator between number and SI unit. Defaults to `" "` if
-#'   `units` is supplied, and `""` if not.
+#' `label_number_si()` is deprecated because the previous unit didn't actually
+#' use SI units, but instead used the so called "short scale". You can now get the
+#' same results as before with
+#' `label_number(scale_cut = cut_short_scale())`, or if you want correct SI
+#' units, `label_number(scale_cut = cut_si("unit"))`.
+#'
+#' @keywords internal
+#' @inherit label_number return params
+#' @param unit Unit of measurement (e.g. `"m"` for meter, the SI unit of length).
+#' @param scale A scaling factor: `x` will be multiplied by `scale` before
+#'   formatting. This is useful if the underlying data is already using an SI
+#'   prefix.
 #' @export
 #' @family labels for continuous scales
 #' @family labels for log scales
 #' @examples
-#' demo_continuous(c(1, 1e9), label = label_number_si())
-#' demo_continuous(c(1, 5000), label = label_number_si(unit = "g"))
-#' demo_continuous(c(1, 1000), label = label_number_si(unit = "m"))
+#' # label_number_si() doesn't actually produce SI prefixes:
+#' demo_continuous(c(1, 1e9), labels = label_number_si("g"))
 #'
-#' demo_log10(c(1, 1e9), breaks = log_breaks(10), labels = label_number_si())
-label_number_si <- function(accuracy = 1, unit = NULL, sep = NULL, ...) {
-  sep <- if (is.null(unit)) "" else " "
-  force_all(accuracy, ...)
+#' # If you want real SI prefixes, use cut_si()
+#' demo_continuous(c(1, 1e9), labels = label_number(scale_cut = cut_si("m")))
+#'
+#' # If you want the existing behavior, use cut_short_scale()
+#' demo_continuous(c(1, 1e9), labels = label_number(scale_cut = cut_short_scale()))
+label_number_si <- function(unit = "", accuracy = NULL, scale = 1, suffix = "", ...) {
+  lifecycle::deprecate_warn(
+    when = "1.2.0",
+    what = "label_number_si()",
+    with = "label_number(scale_cut)"
+  )
 
-  function(x) {
-    breaks <- c(0, 10^c(K = 3, M = 6, B = 9, T = 12))
+  label_number(
+    suffix = suffix,
+    scale_cut = cut_bad_si(unit),
+    accuracy = accuracy,
+    scale = scale,
+    ...
+  )
+}
 
-    n_suffix <- cut(abs(x),
-      breaks = c(unname(breaks), Inf),
-      labels = c(names(breaks)),
-      right = FALSE
-    )
-    n_suffix[is.na(n_suffix)] <- ""
-    suffix <- paste0(sep, n_suffix, unit)
-
-    scale <- 1 / breaks[n_suffix]
-    # for handling Inf and 0-1 correctly
-    scale[which(scale %in% c(Inf, NA))] <- 1
-
-    number(x,
-      accuracy = accuracy,
-      scale = unname(scale),
-      suffix = suffix,
-      ...
-    )
-  }
+cut_bad_si <- function(unit) {
+  out <- cut_short_scale(unit != "")
+  names(out) <- paste0(names(out), unit)
+  out
 }

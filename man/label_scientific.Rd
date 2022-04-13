@@ -2,32 +2,9 @@
 % Please edit documentation in R/label-scientific.R
 \name{label_scientific}
 \alias{label_scientific}
-\alias{scientific_format}
-\alias{scientific}
 \title{Label numbers with scientific notation (e.g. 1e05, 1.5e-02)}
 \usage{
 label_scientific(
-  digits = 3,
-  scale = 1,
-  prefix = "",
-  suffix = "",
-  decimal.mark = ".",
-  trim = TRUE,
-  ...
-)
-
-scientific_format(
-  digits = 3,
-  scale = 1,
-  prefix = "",
-  suffix = "",
-  decimal.mark = ".",
-  trim = TRUE,
-  ...
-)
-
-scientific(
-  x,
   digits = 3,
   scale = 1,
   prefix = "",
@@ -41,7 +18,7 @@ scientific(
 \item{digits}{Number of digits to show before exponent.}
 
 \item{scale}{A scaling factor: \code{x} will be multiplied by \code{scale} before
-formating. This is useful if the underlying data is very small or very
+formatting. This is useful if the underlying data is very small or very
 large.}
 
 \item{prefix, suffix}{Symbols to display before and after value.}
@@ -53,8 +30,6 @@ decimal point.}
 width (see \code{\link[base:format]{base::format()}}).}
 
 \item{...}{Other arguments passed on to \code{\link[base:format]{base::format()}}.}
-
-\item{x}{A numeric vector to format.}
 }
 \value{
 All \code{label_()} functions return a "labelling" function, i.e. a function that
@@ -69,12 +44,6 @@ rather than axes.
 \description{
 Label numbers with scientific notation (e.g. 1e05, 1.5e-02)
 }
-\section{Old interface}{
-
-\code{scientific_format()} and \code{scientific()} are retired; please use
-\code{label_scientific()}.
-}
-
 \examples{
 demo_continuous(c(1, 10))
 demo_continuous(c(1, 10), labels = label_scientific())
@@ -95,6 +64,7 @@ Other labels for continuous scales:
 
 Other labels for log scales: 
 \code{\link{label_bytes}()},
+\code{\link{label_log}()},
 \code{\link{label_number_si}()}
 }
 \concept{labels for continuous scales}

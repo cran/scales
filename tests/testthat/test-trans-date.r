@@ -1,5 +1,3 @@
-context("Trans - dates and times")
-
 a_time <- ISOdatetime(2012, 1, 1, 11, 30, 0, tz = "UTC")
 a_date <- as.Date(a_time)
 
@@ -12,22 +10,22 @@ with_tz <- function(x, value) {
 
 test_that("date/time scales raise error on incorrect inputs", {
   time <- time_trans()
-  expect_error(time$trans(a_date), "Invalid input")
+  expect_error(time$transform(a_date), "Invalid input")
 
   date <- date_trans()
-  expect_error(date$trans(a_time), "Invalid input")
+  expect_error(date$transform(a_time), "Invalid input")
 })
 
 test_that("time scales learn timezones", {
   skip_if_not(getRversion() > "3.3.3")
   time <- time_trans()
-  x <- time$inv(time$trans(a_time))
+  x <- time$inverse(time$transform(a_time))
 
   expect_equal(tz(x), "UTC")
   expect_equal(tz2(x), "UTC")
 
   time <- time_trans()
-  x <- time$inv(time$trans(with_tz(a_time, "GMT")))
+  x <- time$inverse(time$transform(with_tz(a_time, "GMT")))
 
   expect_equal(tz(x), "GMT")
   expect_equal(tz2(x), "GMT")
@@ -35,7 +33,7 @@ test_that("time scales learn timezones", {
 
 test_that("tz arugment overrules default time zone", {
   time <- time_trans("GMT")
-  x <- time$inv(time$trans(a_time))
+  x <- time$inverse(time$transform(a_time))
 
   expect_equal(tz(x), "GMT")
   expect_equal(tz2(x), "GMT")
@@ -58,4 +56,12 @@ test_that("date_breaks() works", {
     date_breaks("1 month")(dates),
     as.Date(c("2012-01-01", "2012-02-01"))
   )
+})
+
+test_that("can invert domain", {
+  t <- date_trans()
+  expect_equal(t$transform(t$domain), c(-Inf, Inf))
+
+  t <- time_trans()
+  expect_equal(t$transform(t$domain), c(-Inf, Inf))
 })

@@ -2,9 +2,9 @@
 % Please edit documentation in R/label-bytes.R
 \name{label_bytes}
 \alias{label_bytes}
-\title{Label bytes (1 kb, 2 MB, etc)}
+\title{Label bytes (1 kB, 2 MB, etc)}
 \usage{
-label_bytes(units = "auto_si", accuracy = 1, ...)
+label_bytes(units = "auto_si", accuracy = 1, scale = 1, ...)
 }
 \arguments{
 \item{units}{Unit to use. Should either one of:
@@ -13,7 +13,7 @@ label_bytes(units = "auto_si", accuracy = 1, ...)
 SI units (base 1000).
 \item "kiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", and "YiB" for
 binary units (base 1024).
-\item \code{auto_si} or \code{auto_binary} to automatically pick the most approrpiate
+\item \code{auto_si} or \code{auto_binary} to automatically pick the most appropriate
 unit for each value.
 }}
 
@@ -24,6 +24,10 @@ difference between adjacent values.
 
 Applied to rescaled data.}
 
+\item{scale}{A scaling factor: \code{x} will be multiplied by \code{scale} before
+formatting. This is useful if the underlying data is very small or very
+large.}
+
 \item{...}{Other arguments passed on to \code{\link[=number]{number()}}}
 }
 \value{
@@ -33,26 +37,25 @@ returns a character vector of labels.
 \description{
 Scale bytes into human friendly units. Can use either SI units (e.g.
 kB = 1000 bytes) or binary units (e.g. kiB = 1024 bytes). See
-\href{http://en.wikipedia.org/wiki/Units_of_information}{Units of Information}
+\href{https://en.wikipedia.org/wiki/Units_of_information}{Units of Information}
 on Wikipedia for more details.
 }
 \examples{
 demo_continuous(c(1, 1e6))
-demo_continuous(c(1, 1e6), label = label_bytes())
-# Force all to use same units
-demo_continuous(c(1, 1e6), label = label_bytes("kB"))
+demo_continuous(c(1, 1e6), labels = label_bytes())
 
 # Auto units are particularly nice on log scales
-demo_log10(c(1, 1e6))
-demo_log10(c(1, 1e7), label = label_bytes())
+demo_log10(c(1, 1e7), labels = label_bytes())
+
+# You can also set the units
+demo_continuous(c(1, 1e6), labels = label_bytes("kB"))
 
 # You can also use binary units where a megabyte is defined as
 # (1024) ^ 2 bytes rather than (1000) ^ 2. You'll need to override
 # the default breaks to make this more informative.
-demo_continuous(c(1, 1024^2), label = label_bytes("auto_binary"))
 demo_continuous(c(1, 1024^2),
   breaks = breaks_width(250 * 1024),
-  label = label_bytes("auto_binary")
+  labels = label_bytes("auto_binary")
 )
 }
 \seealso{
@@ -67,6 +70,7 @@ Other labels for continuous scales:
 \code{\link{label_scientific}()}
 
 Other labels for log scales: 
+\code{\link{label_log}()},
 \code{\link{label_number_si}()},
 \code{\link{label_scientific}()}
 }

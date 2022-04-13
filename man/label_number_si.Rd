@@ -2,11 +2,13 @@
 % Please edit documentation in R/label-number-si.R
 \name{label_number_si}
 \alias{label_number_si}
-\title{Label numbers with SI prefixes (2k, 1M, 5T etc)}
+\title{Label numbers with SI prefixes (2 kg, 5 mm, etc)}
 \usage{
-label_number_si(accuracy = 1, unit = NULL, sep = NULL, ...)
+label_number_si(unit = "", accuracy = NULL, scale = 1, suffix = "", ...)
 }
 \arguments{
+\item{unit}{Unit of measurement (e.g. \code{"m"} for meter, the SI unit of length).}
+
 \item{accuracy}{A number to round to. Use (e.g.) \code{0.01} to show 2 decimal
 places of precision. If \code{NULL}, the default, uses a heuristic that should
 ensure breaks have the minimum number of digits needed to show the
@@ -14,10 +16,11 @@ difference between adjacent values.
 
 Applied to rescaled data.}
 
-\item{unit}{Optional units specifier.}
+\item{scale}{A scaling factor: \code{x} will be multiplied by \code{scale} before
+formatting. This is useful if the underlying data is already using an SI
+prefix.}
 
-\item{sep}{Separator between number and SI unit. Defaults to \code{" "} if
-\code{units} is supplied, and \code{""} if not.}
+\item{suffix}{Additional text to display after the number.}
 
 \item{...}{Other arguments passed on to \code{\link[base:format]{base::format()}}.}
 }
@@ -32,16 +35,23 @@ they work similarly for all scales, including those that generate legends
 rather than axes.
 }
 \description{
-\code{number_si()} automatically scales and labels with the best SI prefix,
-"K" for values \eqn{\ge} 10e3, "M" for \eqn{\ge} 10e6,
-"B" for \eqn{\ge} 10e9, and "T" for \eqn{\ge} 10e12.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+\code{label_number_si()} is deprecated because the previous unit didn't actually
+use SI units, but instead used the so called "short scale". You can now get the
+same results as before with
+\code{label_number(scale_cut = cut_short_scale())}, or if you want correct SI
+units, \code{label_number(scale_cut = cut_si("unit"))}.
 }
 \examples{
-demo_continuous(c(1, 1e9), label = label_number_si())
-demo_continuous(c(1, 5000), label = label_number_si(unit = "g"))
-demo_continuous(c(1, 1000), label = label_number_si(unit = "m"))
+# label_number_si() doesn't actually produce SI prefixes:
+demo_continuous(c(1, 1e9), labels = label_number_si("g"))
 
-demo_log10(c(1, 1e9), breaks = log_breaks(10), labels = label_number_si())
+# If you want real SI prefixes, use cut_si()
+demo_continuous(c(1, 1e9), labels = label_number(scale_cut = cut_si("m")))
+
+# If you want the existing behavior, use cut_short_scale()
+demo_continuous(c(1, 1e9), labels = label_number(scale_cut = cut_short_scale()))
 }
 \seealso{
 Other labels for continuous scales: 
@@ -56,7 +66,9 @@ Other labels for continuous scales:
 
 Other labels for log scales: 
 \code{\link{label_bytes}()},
+\code{\link{label_log}()},
 \code{\link{label_scientific}()}
 }
 \concept{labels for continuous scales}
 \concept{labels for log scales}
+\keyword{internal}

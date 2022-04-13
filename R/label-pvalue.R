@@ -2,10 +2,7 @@
 #'
 #' Formatter for p-values, using "<" and ">" for p-values close to 0 and 1.
 #'
-#' @section Old interface:
-#' `pvalue()` and `pvalue_dollar()` are retired; please use `label_pvalue()`
-#' instead.
-#' @inherit number_format return params
+#' @inherit label_number return params
 #' @param prefix A character vector of length 3 giving the prefixes to
 #'   put in front of numbers. The default values are `c("<", "", ">")`
 #'   if `add_p` is `TRUE` and `c("p<", "p=", "p>")` if `FALSE`.
@@ -23,27 +20,38 @@
 #' demo_continuous(c(0, 1), labels = label_pvalue(prefix = prefix))
 label_pvalue <- function(accuracy = .001, decimal.mark = ".", prefix = NULL, add_p = FALSE) {
   force_all(accuracy, decimal.mark, add_p)
-  function(x) pvalue(
+  function(x) {
+    pvalue(
       x,
       accuracy = accuracy,
       decimal.mark = decimal.mark,
       prefix = prefix,
       add_p = add_p
     )
+  }
 }
 
-#' @rdname label_pvalue
+#' Superseded interface to `label_pvalue()`
+#'
+#' @description
+#' `r lifecycle::badge("superseded")`
+#'
+#' These functions are kept for backward compatibility; you should switch
+#' to [label_pvalue()] for new code.
+#'
+#' @keywords internal
+#' @export
+#' @inheritParams label_pvalue
 #' @export
 pvalue_format <- label_pvalue
 
-#' @rdname label_pvalue
+#' @rdname pvalue_format
 #' @export
 pvalue <- function(x,
                    accuracy = .001,
                    decimal.mark = ".",
                    prefix = NULL,
                    add_p = FALSE) {
-
   out <- number(x, accuracy, decimal.mark = decimal.mark)
   below <- number(accuracy, accuracy, decimal.mark = decimal.mark)
   above <- number(1 - accuracy, accuracy, decimal.mark = decimal.mark)

@@ -2,34 +2,9 @@
 % Please edit documentation in R/label-percent.R
 \name{label_percent}
 \alias{label_percent}
-\alias{percent_format}
-\alias{percent}
 \title{Label percentages (2.5\%, 50\%, etc)}
 \usage{
 label_percent(
-  accuracy = NULL,
-  scale = 100,
-  prefix = "",
-  suffix = "\%",
-  big.mark = " ",
-  decimal.mark = ".",
-  trim = TRUE,
-  ...
-)
-
-percent_format(
-  accuracy = NULL,
-  scale = 100,
-  prefix = "",
-  suffix = "\%",
-  big.mark = " ",
-  decimal.mark = ".",
-  trim = TRUE,
-  ...
-)
-
-percent(
-  x,
   accuracy = NULL,
   scale = 100,
   prefix = "",
@@ -49,12 +24,14 @@ difference between adjacent values.
 Applied to rescaled data.}
 
 \item{scale}{A scaling factor: \code{x} will be multiplied by \code{scale} before
-formating. This is useful if the underlying data is very small or very
+formatting. This is useful if the underlying data is very small or very
 large.}
 
-\item{prefix}{Symbols to display before and after value.}
+\item{prefix}{Additional text to display before the number. The suffix is
+applied to absolute value before \code{style_positive} and \code{style_negative} are
+processed so that \code{prefix = "$"} will yield (e.g.) \verb{-$1} and \verb{($1)}.}
 
-\item{suffix}{Symbols to display before and after value.}
+\item{suffix}{Additional text to display after the number.}
 
 \item{big.mark}{Character used between every 3 digits to separate thousands.}
 
@@ -65,8 +42,6 @@ decimal point.}
 width (see \code{\link[base:format]{base::format()}}).}
 
 \item{...}{Other arguments passed on to \code{\link[base:format]{base::format()}}.}
-
-\item{x}{A numeric vector to format.}
 }
 \value{
 All \code{label_()} functions return a "labelling" function, i.e. a function that
@@ -81,12 +56,6 @@ rather than axes.
 \description{
 Label percentages (2.5\%, 50\%, etc)
 }
-\section{Old interface}{
-
-\code{percent()} and \code{percent_format()} are retired; please use \code{label_percent()}
-instead.
-}
-
 \examples{
 demo_continuous(c(0, 1))
 demo_continuous(c(0, 1), labels = label_percent())
