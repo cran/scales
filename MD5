@@ -1,7 +1,7 @@
-c0cb32facb142437ff3cb28692e92894 *DESCRIPTION
+bcf55a8c5f06df7f8a9d0c1825e9c18e *DESCRIPTION
 5a2ffc012eac074809a07ea440f872a8 *LICENSE
 0b5b91b7c58f930ff86da8c523b1b57a *NAMESPACE
-ebb468d75bcee00e148021f2a153146c *NEWS.md
+40268cf95edde3996b7f220b266c30dc *NEWS.md
 8814fafb11f24feaf7478dd94ecfa3a5 *R/bounds.r
 b1445d3043396543a72d4fe2d076e92b *R/breaks-log.R
 079adab8b16c287e7abb082ad4222432 *R/breaks-retired.R
@@ -18,8 +18,8 @@ f9b73467a7ba9508c5545df56203588d *R/label-date.R
 a457012db694d859ebf670a7bbc572c4 *R/label-expression.R
 072a45868011daf67b2bc6a04545fabe *R/label-log.R
 0c10033f3f3c85385342ab2ac8189662 *R/label-number-auto.R
-92e50db432fae435dcc0cb7715e42635 *R/label-number-si.R
-a2406ea92b6e6151ce54f743fe76d2ef *R/label-number.r
+a60ff7f992fff357cc27ab535196056f *R/label-number-si.R
+675fa590849ad2ce6e7157e5168e71aa *R/label-number.r
 c286891c19f2a1a165a873fac45f7727 *R/label-ordinal.R
 dde684836a63e4b7425dc4feadb654c1 *R/label-percent.R
 87947e9f64b9aad98163153d9603ccba *R/label-pvalue.R
@@ -51,7 +51,7 @@ fe602db86f1d4ec2e70cf81f0af296a8 *R/trans-compose.R
 9fb3e76750aa11787cdb140f2498aef9 *R/trans.r
 00b0d54de08f7e6aecd44deab280cf81 *R/utils.r
 18d4ee9d90f8990a0f7b092c6781896c *README.md
-0dd0164c6a23bc51bb667b796b09031a *build/partial.rdb
+64d9db42e618a908ad71e6a2376f4001 *build/partial.rdb
 7c6902fb83d837c2ac979388f06d5256 *man/Range.Rd
 7d2ca5bd3d0734248d42649d10450ba1 *man/alpha.Rd
 e0a83e4f5deae9e661f4744c88e77cd8 *man/area_pal.Rd
@@ -76,7 +76,7 @@ f860adb11dcf345841f1028dc053ef41 *man/date_trans.Rd
 11d3fc82a24b81c7128651e1047a4f1c *man/demo_continuous.Rd
 9f3e93b8efb77373ba0001da322f3942 *man/dichromat_pal.Rd
 8ce08e5fdb9d00b061bfaaf9cc6487c9 *man/div_gradient_pal.Rd
-be4446fe3cb6e211d9632e322550be8e *man/dollar_format.Rd
+1d8357400c8eb2f34c8b7a1fd5742321 *man/dollar_format.Rd
 91d32f8d9ff45fbfcc2da2d336197051 *man/dscale.Rd
 d97728eb124f9c87bc1a8b29fbd318e5 *man/exp_trans.Rd
 b7b3afb48aae877ff27c665b883e68f1 *man/expand_range.Rd
@@ -105,9 +105,9 @@ befcb392d1d599e135fdb65b7f3b199c *man/label_bytes.Rd
 880b1e05727a61b681cb9e5fed6bbe2d *man/label_date.Rd
 c03e561e26b6eb5d1c7d751a2345e6df *man/label_dollar.Rd
 fe14fb991936b9f955cd5db5cbce905a *man/label_log.Rd
-3deafdf7c8364d6a9535c6bad0037ee8 *man/label_number.Rd
+88a4eff93cba582d374d42451b817141 *man/label_number.Rd
 38b3015a1e3c1353b4fc46d68fdc09cb *man/label_number_auto.Rd
-9dbd3fbf6e9f687fafc6e88ff393c118 *man/label_number_si.Rd
+45fcb50e2a923d344feb6433f39fd7a0 *man/label_number_si.Rd
 923b36cfb9bde22dd26f84cb7f8939f9 *man/label_ordinal.Rd
 b32575f43f73852dee2a322da3c3a048 *man/label_parse.Rd
 f37f25fe4d1d377bc5997a506d42c45b *man/label_percent.Rd
@@ -122,7 +122,7 @@ bca325d7f6896d0b5eadd39f7b5173a8 *man/muted.Rd
 7c3b19b9d94281616149217bf61ed9d9 *man/number.Rd
 46b378fd9a11b2c7a0a1d0ffda3b7c6e *man/number_bytes_format.Rd
 41da2b7da35b3719d567bc20c760f681 *man/oob.Rd
-d18f14269137848316e6502f7bb86c8f *man/ordinal_format.Rd
+679d9d3f3ff7c606eaae28bdfb7e63ca *man/ordinal_format.Rd
 87023e6af5509b7872d1a8b42ccc9900 *man/parse_format.Rd
 b5ac8911772ebb35084607bc2ce4166a *man/percent_format.Rd
 f67ffa9739242f484e5ff0ef6a6942d2 *man/pretty_breaks.Rd
@@ -136,8 +136,8 @@ d6bd227592dc4fa2d447108e7b9a16f4 *man/rescale_mid.Rd
 eefe087446ed1fca26bcfb30a1cf0e31 *man/rescale_none.Rd
 d1afae688ed341d1f0c8e5997dbf6432 *man/rescale_pal.Rd
 e32b10db8b7d5c4c49f0b8ff7d2edb3a *man/reverse_trans.Rd
-7a4233aa27b4be2a94247eaf1b9f7d16 *man/scales-package.Rd
-8f955fb0fc1921b3324ac122d05b5f83 *man/scientific_format.Rd
+5db35416ccbf40e253b9f4a082a08a42 *man/scales-package.Rd
+f4b3dc988978e99925953ea237e9a1d0 *man/scientific_format.Rd
 7a1f496bba2764c5e1d71a94a2de5c22 *man/seq_gradient_pal.Rd
 b284a347921f53283f6426d12f6ec19a *man/shape_pal.Rd
 27b5ff466137d6016453bc90fd47a3a5 *man/show_col.Rd
@@ -176,7 +176,7 @@ a75bd1ea5a7053cdefe03abb9b130f9f *tests/testthat/test-label-dollar.R
 f713deb49d22cbfe7af34d966cd8f63b *tests/testthat/test-label-log.R
 3b056db9a1f8b2da54ad0adfddaec45e *tests/testthat/test-label-number-auto.R
 b48c807efb175bbdaf612aec66a2e90f *tests/testthat/test-label-number-si.R
-8582ddd5f34acace814e71ab4793183b *tests/testthat/test-label-number.r
+c63f821b0ffc102b5738defa84c2ae7c *tests/testthat/test-label-number.r
 a39a85b8c8d95135dfd50e9cdbb6e9c0 *tests/testthat/test-label-ordinal.R
 0635235d1a43347ae50ee32d0c553d59 *tests/testthat/test-label-percent.R
 7a8e4fbe7866d6fc8c26f214302272e9 *tests/testthat/test-label-pvalue.R
