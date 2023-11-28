@@ -7,6 +7,8 @@
 #' but uses a slightly different approach: `ConciseDateFormatter` formats
 #' "firsts" (e.g. first day of month, first day of day) specially;
 #' `date_short()` formats changes (e.g. new month, new year) specially.
+#' `label_timespan()` is intended to show time passed and adds common time units
+#' suffix to the input (ns, us, ms, s, m, h, d, w).
 #'
 #' @inherit label_number return
 #' @param format For `date_format()` and `time_format()` a date/time format
@@ -109,12 +111,27 @@ label_time <- function(format = "%H:%M:%S", tz = "UTC", locale = NULL) {
     } else if (inherits(x, "difftime")) {
       format(as.POSIXct(x), format = format, tz = tz)
     } else {
-      stop(
-        "time_format can't be used with objects of class ", paste(class(x), collapse = "/"),
-        ".",
-        call. = FALSE
-      )
+      cli::cli_abort("{.fun label_time} can't be used with an object of class {.cls {class(x)}}")
     }
+  }
+}
+
+#' @export
+#' @rdname label_date
+#' @param unit The unit used to interpret numeric input
+#' @param space Add a space before the time unit?
+#' @inheritDotParams number accuracy scale prefix suffix big.mark decimal.mark style_positive style_negative trim
+label_timespan <- function(unit = c("secs", "mins", "hours", "days", "weeks"), space = FALSE,
+                           ...) {
+  unit <- arg_match(unit)
+  force_all(...)
+  function(x) {
+    x <- as.numeric(as.difftime(x, units = unit), units = "secs")
+    number(
+      x,
+      scale_cut = cut_time_scale(space),
+      ...
+    )
   }
 }
 

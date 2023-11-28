@@ -1,14 +1,13 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# scales <a href='https://scales.r-lib.org'><img src='man/figures/logo.png' align="right" height="139" /></a>
+# scales <a href="https://scales.r-lib.org/"><img src="man/figures/logo.png" align="right" height="138" alt="scales website" /></a>
 
 <!-- badges: start -->
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/scales)](https://CRAN.R-project.org/package=scales)
-[![R build
-status](https://github.com/r-lib/scales/workflows/R-CMD-check/badge.svg)](https://github.com/r-lib/scales/actions)
+[![R-CMD-check](https://github.com/r-lib/scales/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/r-lib/scales/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/r-lib/scales/branch/main/graph/badge.svg)](https://app.codecov.io/gh/r-lib/scales?branch=main)
 <!-- badges: end -->
@@ -29,18 +28,18 @@ override the default breaks, labels, transformations and palettes.
 install.packages("scales")
 
 # Or the development version from Github:
-# install.packages("devtools")
-devtools::install_github("r-lib/scales")
+# install.packages("pak")
+pak::pak("r-lib/scales")
 ```
 
 ## Usage
 
 ### Breaks and labels
 
-The most common use of the scales package is to customise to control the
-appearance of axis and legend labels. Use a `break_` function to control
-how breaks are generated from the limits, and a `label_` function to
-control how breaks are turned in to labels.
+The most common use of the scales package is to control the appearance
+of axis and legend labels. Use a `break_` function to control how breaks
+are generated from the limits, and a `label_` function to control how
+breaks are turned in to labels.
 
 ``` r
 library(ggplot2)
@@ -67,6 +66,7 @@ txhousing %>%
 ![](man/figures/README-labels-1.png)<!-- -->
 
 ``` r
+
 economics %>% 
   filter(date < ymd("1970-01-01")) %>% 
   ggplot(aes(date, pce)) + 
@@ -85,7 +85,7 @@ economics %>%
 
 Generally, I don’t recommend running `library(scales)` because when you
 type (e.g.) `scales::label_` autocomplete will provide you with a list
-of labelling functions to job your memory.
+of labelling functions to jog your memory.
 
 ### Advanced features
 
@@ -96,11 +96,11 @@ might apply them to a base plot.
 ``` r
 library(scales)
 # pull a list of colours from any palette
-viridis_pal()(4)
+pal_viridis()(4)
 #> [1] "#440154FF" "#31688EFF" "#35B779FF" "#FDE725FF"
 
 # use in combination with baseR `palette()` to set new defaults
-palette(brewer_pal(palette = "Set2")(4))
+palette(pal_brewer(palette = "Set2")(4))
 par(mar = c(5, 5, 1, 1))
 plot(Sepal.Length ~ Sepal.Width, data = iris, col = Species, pch = 20)
 ```
@@ -111,8 +111,8 @@ scales also gives users the ability to define and apply their own custom
 transformation functions for repeated use.
 
 ``` r
-# use trans_new to build a new transformation
-logp3_trans <- trans_new(
+# use new_transform to build a new transformation
+transform_logp3 <- new_transform(
   name = "logp",
   transform = function(x) log(x + 3),
   inverse = function(x) exp(x) - 3,
@@ -122,7 +122,7 @@ logp3_trans <- trans_new(
 dsamp <- sample_n(diamonds, 100)
 ggplot(dsamp, aes(carat, price, colour = color)) +
   geom_point() + 
-  scale_y_continuous(trans = logp3_trans)
+  scale_y_continuous(trans = transform_logp3)
 ```
 
 ![](man/figures/README-transforms-1.png)<!-- -->
