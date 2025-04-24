@@ -1,6 +1,6 @@
 test_that("R6 inheritance works", {
-  expect_error(ContinuousRange$new(), NA)
-  expect_error(DiscreteRange$new(), NA)
+  expect_no_error(ContinuousRange$new())
+  expect_no_error(DiscreteRange$new())
   expect_true(R6::is.R6(ContinuousRange$new()))
   expect_true(R6::is.R6(DiscreteRange$new()))
 })
@@ -44,7 +44,10 @@ test_that("factor discrete ranges stay in order", {
   expect_equal(discrete_range(f, f), letters[3:1])
   expect_equal(discrete_range(f, "c"), letters[3:1])
   expect_equal(discrete_range(f, c("a", "b", "c")), letters[3:1])
-  expect_equal(discrete_range(f, c("a", "b", "c", NA), na.rm = FALSE), c(letters[3:1], NA))
+  expect_equal(
+    discrete_range(f, c("a", "b", "c", NA), na.rm = FALSE),
+    c(letters[3:1], NA)
+  )
 })
 
 test_that("factor discrete ranges take precedence over character", {

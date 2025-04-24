@@ -24,12 +24,18 @@
 #' show_col(pal_hue(h = c(90, 180))(9))
 #' show_col(pal_hue(h = c(180, 270))(9))
 #' show_col(pal_hue(h = c(270, 360))(9))
-pal_hue <- function(h = c(0, 360) + 15, c = 100, l = 65, h.start = 0, direction = 1) {
+pal_hue <- function(
+  h = c(0, 360) + 15,
+  c = 100,
+  l = 65,
+  h.start = 0,
+  direction = 1
+) {
   if (length(h) != 2) cli::cli_abort("{.arg h} must have length 2.")
   if (length(l) != 1) cli::cli_abort("{.arg l} must have length 1.")
   if (length(c) != 1) cli::cli_abort("{.arg c} must have length 1.")
   force_all(h, c, l, h.start, direction)
-  function(n) {
+  fun <- function(n) {
     if (n == 0) {
       cli::cli_abort("Must request at least one colour from a hue palette.")
     }
@@ -51,9 +57,9 @@ pal_hue <- function(h = c(0, 360) + 15, c = 100, l = 65, h.start = 0, direction 
       pal
     }
   }
+  new_discrete_palette(fun, "colour", 255)
 }
 
 #' @export
 #' @rdname pal_hue
 hue_pal <- pal_hue
-

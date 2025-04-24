@@ -9,6 +9,7 @@ fullseq <- function(range, size, ...) UseMethod("fullseq")
 
 #' @export
 fullseq.numeric <- function(range, size, ..., pad = FALSE) {
+  range <- sort(range)
   if (zero_range(range)) {
     return(range + size * c(-1, 1) / 2)
   }
@@ -30,16 +31,21 @@ fullseq.numeric <- function(range, size, ..., pad = FALSE) {
 
 #' @export
 fullseq.Date <- function(range, size, ...) {
+  range <- sort(range)
   seq(floor_date(range[1], size), ceiling_date(range[2], size), by = size)
 }
 #' @export
 fullseq.POSIXt <- function(range, size, ...) {
-
   # for subsecond interval support
   # seq() does not support partial secs in character strings
+  range <- sort(range)
   parsed <- parse_unit_spec(size)
   if (parsed$unit == "sec") {
-    seq(floor_time(range[1], size), ceiling_time(range[2], size), by = parsed$mult)
+    seq(
+      floor_time(range[1], size),
+      ceiling_time(range[2], size),
+      by = parsed$mult
+    )
   } else {
     seq(floor_time(range[1], size), ceiling_time(range[2], size), by = size)
   }
@@ -53,6 +59,7 @@ fullseq.difftime <- function(range, size, ...) {
   }
 
   input_units <- units(range)
+  range <- sort(range)
 
   x <- seq(
     round_any(as.numeric(range[1], units = "secs"), size_seconds, floor),

@@ -16,6 +16,13 @@
 #'   offset by three months and five days, which is useful for the UK tax year.
 #'   Note that due to way that dates are rounded, there's no guarantee that
 #'   `offset = c(x, y)` will give the same result as `offset = c(y, x)`.
+#'
+#' @return
+#' All `breaks_()` functions return a function for generating breaks. These
+#' functions takes, as their first argument a vector of values that represent
+#' the data range to provide breaks for. Some will optionally take a second
+#' argument that allows you to specify the number of breaks to recieve.
+#'
 #' @export
 #' @examples
 #' demo_continuous(c(0, 100))
@@ -71,6 +78,9 @@ breaks_width <- function(width, offset = 0) {
 #' @param n Desired number of breaks. You may get slightly more or fewer
 #'   breaks that requested.
 #' @param ... other arguments passed on to [labeling::extended()]
+#'
+#' @inherit breaks_width return
+#'
 #' @references Talbot, J., Lin, S., Hanrahan, P. (2010) An Extension of
 #'  Wilkinson's Algorithm for Positioning Tick Labels on Axes, InfoVis
 #'  2010 <http://vis.stanford.edu/files/2010-TickLabels-InfoVis.pdf>.
@@ -105,6 +115,9 @@ extended_breaks <- breaks_extended
 #'
 #' @inheritParams breaks_extended
 #' @param ... other arguments passed on to [pretty()]
+#'
+#' @inherit breaks_width return
+#'
 #' @export
 #' @examples
 #' one_month <- as.POSIXct(c("2020-05-01", "2020-06-01"))
@@ -122,6 +135,9 @@ breaks_pretty <- function(n = 5, ...) {
   force_all(n, ...)
   n_default <- n
   function(x, n = n_default) {
+    if (length(x) > 0 && zero_range(range(as.numeric(x), na.rm = TRUE))) {
+      return(x[1])
+    }
     breaks <- pretty(x, n, ...)
     names(breaks) <- attr(breaks, "labels")
     breaks
@@ -148,12 +164,18 @@ pretty_breaks <- breaks_pretty
 #' determines the base used for calculating breaks
 #'
 #' @param unit The unit used to interpret numeric data input
+#'
+#' @inherit breaks_width return
+#'
 #' @inheritParams breaks_extended
 #' @export
 #' @examples
 #' demo_timespan(seq(0, 100), breaks = breaks_timespan())
 #'
-breaks_timespan <- function(unit = c("secs", "mins", "hours", "days", "weeks"), n = 5) {
+breaks_timespan <- function(
+  unit = c("secs", "mins", "hours", "days", "weeks"),
+  n = 5
+) {
   unit <- arg_match(unit)
   force(n)
   function(x) {
@@ -175,10 +197,43 @@ breaks_timespan <- function(unit = c("secs", "mins", "hours", "days", "weeks"), 
 
     rng <- rng / scale
     breaks <- labeling::extended(
-      rng[1], rng[2], n,
+      rng[1],
+      rng[2],
+      n,
       Q = c(1, 2, 1.5, 4, 3),
       only.loose = FALSE
     )
     as.difftime(breaks * scale, units = "secs")
+  }
+}
+
+#' Breaks for exponentially transformed data
+#'
+#' This breaks function typically labels zero and the last `n - 1` integers of a
+#' range if that range is large enough (currently: 3). For smaller ranges, it
+#' uses [`breaks_extended()`].
+#'
+#' @inheritParams breaks_extended
+#'
+#' @inherit breaks_width return
+#'
+#' @export
+#' @examples
+#' # Small range
+#' demo_continuous(c(100, 102), transform = "exp", breaks = breaks_exp())
+#' # Large range
+#' demo_continuous(c(0, 100), transform = "exp", breaks = breaks_exp(n = 4))
+breaks_exp <- function(n = 5, ...) {
+  n_default <- n
+  default <- extended_breaks(n = n_default, ...)
+  function(x, n = n_default) {
+    # Discard -Infs
+    x <- sort(pmax(x, 0))
+    top <- floor(x[2])
+    if (top >= 3 && abs(diff(x)) >= 3) {
+      unique(c(top - seq_len(min(top, n_default - 1)) + 1, 0))
+    } else {
+      default(x)
+    }
   }
 }

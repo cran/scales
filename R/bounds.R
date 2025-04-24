@@ -21,7 +21,12 @@ rescale <- function(x, to, from, ...) {
 
 #' @rdname rescale
 #' @export
-rescale.numeric <- function(x, to = c(0, 1), from = range(x, na.rm = TRUE, finite = TRUE), ...) {
+rescale.numeric <- function(
+  x,
+  to = c(0, 1),
+  from = range(x, na.rm = TRUE, finite = TRUE),
+  ...
+) {
   if (zero_range(from) || zero_range(to)) {
     return(ifelse(is.na(x), NA, mean(to)))
   }
@@ -42,7 +47,12 @@ rescale.logical <- rescale.numeric
 
 #' @rdname rescale
 #' @export
-rescale.POSIXt <- function(x, to = c(0, 1), from = range(x, na.rm = TRUE, finite = TRUE), ...) {
+rescale.POSIXt <- function(
+  x,
+  to = c(0, 1),
+  from = range(x, na.rm = TRUE, finite = TRUE),
+  ...
+) {
   x <- as.numeric(x)
   from <- as.numeric(from)
   rescale.numeric(x = x, to = to, from = from)
@@ -54,7 +64,12 @@ rescale.Date <- rescale.POSIXt
 
 #' @rdname rescale
 #' @export
-rescale.integer64 <- function(x, to = c(0, 1), from = range(x, na.rm = TRUE), ...) {
+rescale.integer64 <- function(
+  x,
+  to = c(0, 1),
+  from = range(x, na.rm = TRUE),
+  ...
+) {
   if (zero_range(from, tol = 0) || zero_range(to)) {
     return(ifelse(is.na(x), NA, mean(to)))
   }
@@ -90,7 +105,13 @@ rescale_mid <- function(x, to, from, mid, ...) {
 
 #' @rdname rescale_mid
 #' @export
-rescale_mid.numeric <- function(x, to = c(0, 1), from = range(x, na.rm = TRUE), mid = 0, ...) {
+rescale_mid.numeric <- function(
+  x,
+  to = c(0, 1),
+  from = range(x, na.rm = TRUE),
+  mid = 0,
+  ...
+) {
   if (zero_range(from) || zero_range(to)) {
     return(ifelse(is.na(x), NA, mean(to)))
   }
@@ -113,8 +134,13 @@ rescale_mid.dist <- rescale_mid.numeric
 
 #' @rdname rescale_mid
 #' @export
-rescale_mid.POSIXt <- function(x, to = c(0, 1), from = range(x, na.rm = TRUE),
-                               mid, ...) {
+rescale_mid.POSIXt <- function(
+  x,
+  to = c(0, 1),
+  from = range(x, na.rm = TRUE),
+  mid,
+  ...
+) {
   x <- as.numeric(as.POSIXct(x))
   if (!is.numeric(from)) {
     from <- as.numeric(as.POSIXct(from))
@@ -131,7 +157,13 @@ rescale_mid.Date <- rescale_mid.POSIXt
 
 #' @rdname rescale_mid
 #' @export
-rescale_mid.integer64 <- function(x, to = c(0, 1), from = range(x, na.rm = TRUE), mid = 0, ...) {
+rescale_mid.integer64 <- function(
+  x,
+  to = c(0, 1),
+  from = range(x, na.rm = TRUE),
+  mid = 0,
+  ...
+) {
   if (zero_range(from, tol = 0) || zero_range(to)) {
     return(ifelse(is.na(x), NA, mean(to)))
   }
@@ -368,7 +400,7 @@ zero_range <- function(x, tol = 1000 * .Machine$double.eps) {
     return(TRUE)
   }
   if (length(x) != 2) cli::cli_abort("{.arg x} must be length 1 or 2")
-  if (any(is.na(x))) {
+  if (anyNA(x)) {
     return(NA)
   }
 
@@ -378,13 +410,14 @@ zero_range <- function(x, tol = 1000 * .Machine$double.eps) {
     return(TRUE)
   }
 
-  # If we reach this, then x must be (-Inf, Inf) or (Inf, -Inf)
-  if (all(is.infinite(x))) {
+  # If we reach this, then x must be (-Inf, <number>) or (<number>, Inf)
+  if (any(is.infinite(x))) {
     return(FALSE)
   }
 
   # Take the smaller (in magnitude) value of x, and use it as the scaling
   # factor.
+  x <- as.numeric(unclass(x))
   m <- min(abs(x))
 
   # If we get here, then exactly one of the x's is 0. Return FALSE

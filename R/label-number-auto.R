@@ -4,6 +4,8 @@
 #' heuristics designed to automatically generate useful labels across a wide
 #' range of inputs
 #'
+#' @inherit label_number return
+#'
 #' @export
 #' @family labels for continuous scales
 #' @examples
@@ -57,7 +59,11 @@ label_number_auto <- function() {
 
 format_shortest <- function(breaks, ...) {
   options <- list(...)
-  labels <- vapply(options, function(labeller) labeller(breaks), character(length(breaks)))
+  labels <- vapply(
+    options,
+    function(labeller) labeller(breaks),
+    character(length(breaks))
+  )
   apply(matrix(labels, nrow = length(breaks)), 1, shortest)
 }
 

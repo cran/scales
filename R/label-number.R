@@ -1,6 +1,6 @@
 #' Label numbers in decimal format (e.g. 0.12, 1,234)
 #'
-#' Use `label_number()` force decimal display of numbers (i.e. don't use
+#' Use `label_number()` to force decimal display of numbers (i.e. don't use
 #' [scientific][label_scientific] notation). `label_comma()` is a special case
 #' that inserts a comma every three digits.
 #'
@@ -28,8 +28,11 @@
 #'   processed so that `prefix = "$"` will yield (e.g.) `-$1` and `($1)`.
 #' @param suffix Additional text to display after the number.
 #' @param big.mark Character used between every 3 digits to separate thousands.
+#'   The default (`NULL`) retrieves the setting from the
+#'   [number options][number_options].
 #' @param decimal.mark The character to be used to indicate the numeric
-#'   decimal point.
+#'   decimal point.  The default (`NULL`) retrieves the setting from the
+#'   [number options][number_options].
 #' @param style_positive A string that determines the style of positive numbers:
 #'
 #'   * `"none"` (the default): no change, e.g. `1`.
@@ -38,13 +41,19 @@
 #'     as wide as a number or `+`. Compared to `"none"`, adding a figure space
 #'     can ensure numbers remain properly aligned when they are left- or
 #'     right-justified.
+#'
+#'   The default (`NULL`) retrieves the setting from the
+#'   [number options][number_options].
 #' @param style_negative A string that determines the style of negative numbers:
 #'
-#'   * `"hyphen"` (the default): preceded by a standard hypen `-`, e.g. `-1`.
+#'   * `"hyphen"` (the default): preceded by a standard hyphen `-`, e.g. `-1`.
 #'   * `"minus"`, uses a proper Unicode minus symbol. This is a typographical
 #'      nicety that ensures `-` aligns with the horizontal bar of the
 #'      the horizontal bar of `+`.
 #'   * `"parens"`, wrapped in parentheses, e.g. `(1)`.
+#'
+#'   The default (`NULL`) retrieves the setting from the
+#'   [number options][number_options].
 #' @param scale_cut Named numeric vector that allows you to rescale large
 #'   (or small) numbers and add a prefix. Built-in helpers include:
 #'   * `cut_short_scale()`: [10^3, 10^6) = K, [10^6, 10^9) = M, [10^9, 10^12) = B, [10^12, Inf) = T.
@@ -108,12 +117,19 @@
 #' # You can use prefix and suffix for other types of display
 #' demo_continuous(c(32, 212), labels = label_number(suffix = "\u00b0F"))
 #' demo_continuous(c(0, 100), labels = label_number(suffix = "\u00b0C"))
-label_number <- function(accuracy = NULL, scale = 1, prefix = "",
-                         suffix = "", big.mark = " ", decimal.mark = ".",
-                         style_positive = c("none", "plus", "space"),
-                         style_negative = c("hyphen", "minus", "parens"),
-                         scale_cut = NULL,
-                         trim = TRUE, ...) {
+label_number <- function(
+  accuracy = NULL,
+  scale = 1,
+  prefix = "",
+  suffix = "",
+  big.mark = NULL,
+  decimal.mark = NULL,
+  style_positive = NULL,
+  style_negative = NULL,
+  scale_cut = NULL,
+  trim = TRUE,
+  ...
+) {
   force_all(
     accuracy,
     scale,
@@ -149,9 +165,17 @@ label_number <- function(accuracy = NULL, scale = 1, prefix = "",
 #' @export
 #' @rdname label_number
 #' @param digits `r lifecycle::badge("deprecated")` Use `accuracy` instead.
-label_comma <- function(accuracy = NULL, scale = 1, prefix = "",
-                        suffix = "", big.mark = ",", decimal.mark = ".",
-                        trim = TRUE, digits, ...) {
+label_comma <- function(
+  accuracy = NULL,
+  scale = 1,
+  prefix = "",
+  suffix = "",
+  big.mark = ",",
+  decimal.mark = ".",
+  trim = TRUE,
+  digits,
+  ...
+) {
   if (!missing(digits)) {
     lifecycle::deprecate_stop(
       when = "1.0.0",
@@ -183,9 +207,18 @@ label_comma <- function(accuracy = NULL, scale = 1, prefix = "",
 #' @export
 #' @inheritParams label_number
 #' @param x A numeric vector to format.
-comma <- function(x, accuracy = NULL, scale = 1, prefix = "",
-                  suffix = "", big.mark = ",", decimal.mark = ".",
-                  trim = TRUE, digits, ...) {
+comma <- function(
+  x,
+  accuracy = NULL,
+  scale = 1,
+  prefix = "",
+  suffix = "",
+  big.mark = ",",
+  decimal.mark = ".",
+  trim = TRUE,
+  digits,
+  ...
+) {
   if (!missing(digits)) {
     lifecycle::deprecate_stop(
       when = "1.0.0",
@@ -224,21 +257,37 @@ comma_format <- label_comma
 #' @export
 #' @inheritParams label_number
 #' @return A character vector of `length(x)`.
-number <- function(x, accuracy = NULL, scale = 1, prefix = "",
-                   suffix = "", big.mark = " ", decimal.mark = ".",
-                   style_positive = c("none", "plus", "space"),
-                   style_negative = c("hyphen", "minus", "parens"),
-                   scale_cut = NULL,
-                   trim = TRUE, ...) {
+number <- function(
+  x,
+  accuracy = NULL,
+  scale = 1,
+  prefix = "",
+  suffix = "",
+  big.mark = NULL,
+  decimal.mark = NULL,
+  style_positive = NULL,
+  style_negative = NULL,
+  scale_cut = NULL,
+  trim = TRUE,
+  ...
+) {
   if (length(x) == 0) {
     return(character())
   }
+  big.mark <- big.mark %||% getOption("scales.big.mark", default = " ")
+  decimal.mark <- decimal.mark %||%
+    getOption("scales.decimal.mark", default = ".")
+  style_positive <- style_positive %||%
+    getOption("scales.style_positive", default = "none")
+  style_negative <- style_negative %||%
+    getOption("scales.style_negative", default = "hyphen")
 
-  style_positive <- arg_match(style_positive)
-  style_negative <- arg_match(style_negative)
+  style_positive <- arg_match(style_positive, c("none", "plus", "space"))
+  style_negative <- arg_match(style_negative, c("hyphen", "minus", "parens"))
 
   if (!is.null(scale_cut)) {
-    cut <- scale_cut(x,
+    cut <- scale_cut(
+      x,
       breaks = scale_cut,
       scale = scale,
       accuracy = accuracy,
@@ -298,6 +347,58 @@ number <- function(x, accuracy = NULL, scale = 1, prefix = "",
   ret
 }
 
+#' Number options
+#'
+#' Control the settings for formatting numbers globally.
+#'
+#' @inheritParams label_number
+#' @param currency.prefix,currency.suffix,currency.decimal.mark,currency.big.mark
+#'   Settings for [`label_currency()`] passed on without the `currency.`-prefix.
+#' @param ordinal.rules Setting for [`label_ordinal()`] passed on without the
+#'   `ordinal.`-prefix.
+#'
+#' @return The old options invisibly
+#' @export
+#'
+#' @examples
+#' # Default number formatting
+#' x <- c(0.1, 1, 1000)
+#' label_number()(x)
+#'
+#' # Now again with new options set
+#' number_options(style_positive = "plus", decimal.mark = ",")
+#' label_number()(x)
+#'
+#' # The options are the argument names with a 'scales.'-prefix
+#' options("scales.style_positive")
+#'
+#' # Resetting the options to their defaults
+#' number_options()
+#' label_number()(x)
+number_options <- function(
+  decimal.mark = ".",
+  big.mark = " ",
+  style_positive = c("none", "plus", "space"),
+  style_negative = c("hyphen", "minus", "parens"),
+  currency.prefix = "$",
+  currency.suffix = "",
+  currency.decimal.mark = decimal.mark,
+  currency.big.mark = setdiff(c(".", ","), currency.decimal.mark)[1],
+  ordinal.rules = ordinal_english()
+) {
+  opts <- options(
+    scales.decimal.mark = decimal.mark,
+    scales.big.mark = big.mark,
+    scales.style_positive = arg_match(style_positive),
+    scales.style_negative = arg_match(style_negative),
+    scales.currency.prefix = currency.prefix,
+    scales.currency.suffix = currency.suffix,
+    scales.currency.decimal.mark = currency.decimal.mark,
+    scales.currency.big.mark = currency.big.mark,
+    scales.ordinal.rules = ordinal.rules
+  )
+  invisible(opts)
+}
 
 # Helpers -----------------------------------------------------------------
 
@@ -328,12 +429,12 @@ precision <- function(x) {
 
 # each value of x is assigned a suffix and associated scaling factor
 scale_cut <- function(x, breaks, scale = 1, accuracy = NULL, suffix = "") {
-
-  if (!is.numeric(breaks) || is.null(names(breaks))) {
-    cli::cli_abort("{.arg scale_cut} must be a named numeric vector")
+  check_object(breaks, is.numeric, "a numeric vector", arg = caller_arg(breaks))
+  if (is.null(names(breaks))) {
+    cli::cli_abort("{.arg scale_cut} must have names")
   }
   breaks <- sort(breaks, na.last = TRUE)
-  if (any(is.na(breaks))) {
+  if (anyNA(breaks)) {
     cli::cli_abort("{.arg scale_cut} values must not be missing")
   }
 
@@ -350,10 +451,14 @@ scale_cut <- function(x, breaks, scale = 1, accuracy = NULL, suffix = "") {
   if (any(bad_break)) {
     # If the break below result in a perfect cut, prefer it
     lower_break <- breaks[match(break_suffix[bad_break], names(breaks)) - 1]
+    lower_break[lower_break == 0] <- 1 # Avoid choosing a non-existent break
     improved_break <- (x[bad_break] * scale / lower_break) %% 1 == 0
     # Unless the break below is a power of 10 change (1.25 is as good as 1250)
-    power10_break <- log10(breaks[break_suffix[bad_break]] / lower_break) %% 1 == 0
-    break_suffix[bad_break][improved_break & !power10_break] <- names(lower_break[improved_break & !power10_break])
+    power10_break <- breaks[break_suffix[bad_break]] / lower_break
+    power10_break <- log10(power10_break) %% 1 == 0
+    break_suffix[bad_break][
+      improved_break & !power10_break
+    ] <- names(lower_break[improved_break & !power10_break])
   }
 
   break_scale <- scale * unname(1 / breaks[break_suffix])
@@ -363,7 +468,8 @@ scale_cut <- function(x, breaks, scale = 1, accuracy = NULL, suffix = "") {
   break_scale[abs(x) == 0 | is.na(break_scale)] <- 1
 
   suffix <- paste0(break_suffix, suffix)
-  accuracy <- accuracy %||% stats::ave(x * break_scale, break_scale, FUN = precision)
+  accuracy <- accuracy %||%
+    stats::ave(x * break_scale, break_scale, FUN = precision)
 
   list(
     scale = break_scale,
@@ -402,7 +508,7 @@ cut_time_scale <- function(space = FALSE) {
   out <- c(
     0,
     "ns" = 1e-9,
-    "\u03BCs" = 1e-6,
+    "us" = 1e-6,
     "ms" = 1e-3,
     "s" = 1,
     "m" = 60,
@@ -410,6 +516,9 @@ cut_time_scale <- function(space = FALSE) {
     "d" = 24 * 3600,
     "w" = 7 * 24 * 3600
   )
+  if (l10n_info()[["UTF-8"]]) {
+    names(out)[3] <- "\u03BCs"
+  }
   if (space) {
     names(out) <- paste0(" ", names(out))
   }
@@ -422,11 +531,23 @@ cut_time_scale <- function(space = FALSE) {
 # note: irregular prefixes (hecto, deca, deci, centi) are not stored
 # because they don't commonly appear in scientific usage anymore
 si_powers <- c(
-  y = -24, z = -21, a = -18, f = -15,
-  p = -12, n =  -9, micro = -6, m = -3,
+  y = -24,
+  z = -21,
+  a = -18,
+  f = -15,
+  p = -12,
+  n = -9,
+  micro = -6,
+  m = -3,
   0,
-  k =  3, M =  6, G =  9, T = 12,
-  P = 15, E = 18, Z = 21, Y = 24
+  k = 3,
+  M = 6,
+  G = 9,
+  T = 12,
+  P = 15,
+  E = 18,
+  Z = 21,
+  Y = 24
 )
 # Avoid using UTF8 as symbol
 names(si_powers)[si_powers == -6] <- "\u00b5"

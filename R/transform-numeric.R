@@ -67,16 +67,16 @@ asinh_trans <- transform_asinh
 #' Box-Cox to also work with negative values.
 #'
 #' The Box-Cox power transformation (type 1) requires strictly positive values and
-#' takes the following form for `y > 0`:
+#' takes the following form for \eqn{\lambda > 0}:
 #' \deqn{y^{(\lambda)} = \frac{y^\lambda - 1}{\lambda}}{y^(\lambda) = (y^\lambda - 1)/\lambda}
-#' When `y = 0`, the natural log transform is used.
+#' When \eqn{\lambda = 0}, the natural log transform is used.
 #'
 #' The modulus transformation implements a generalisation of the Box-Cox
 #' transformation that works for data with both positive and negative values.
-#' The equation takes the following forms, when `y != 0` :
+#' The equation takes the following forms, when \eqn{\lambda \neq 0} :
 #' \deqn{y^{(\lambda)} = sign(y) * \frac{(|y| + 1)^\lambda - 1}{\lambda}}{
 #' y^(\lambda) = sign(y)*((|y|+1)^\lambda - 1)/\lambda}
-#' and when `y = 0`: \deqn{y^{(\lambda)} =  sign(y) * \ln(|y| + 1)}{
+#' and when \eqn{\lambda = 0}: \deqn{y^{(\lambda)} =  sign(y) * \ln(|y| + 1)}{
 #' y^(\lambda) = sign(y) * ln(|y| + 1)}
 #'
 #' @param p Transformation exponent, \eqn{\lambda}.
@@ -154,8 +154,11 @@ transform_modulus <- function(p, offset = 1) {
     d_inv <- function(x) (abs(x) * p + 1)^(1 / p - 1)
   }
   new_transform(
-    paste0("mt-pow-", format(p)), trans, inv,
-    d_transform = d_trans, d_inverse = d_inv
+    paste0("mt-pow-", format(p)),
+    trans,
+    inv,
+    d_transform = d_trans,
+    d_inverse = d_inv
   )
 }
 
@@ -221,7 +224,8 @@ transform_yj <- function(p) {
     paste0("yeo-johnson-", format(p)),
     function(x) trans_two_sided(x, trans_pos, trans_neg),
     function(x) trans_two_sided(x, inv_pos, inv_neg),
-    d_transform = function(x) trans_two_sided(x, d_trans_pos, d_trans_neg, f_at_0 = 1),
+    d_transform = function(x)
+      trans_two_sided(x, d_trans_pos, d_trans_neg, f_at_0 = 1),
     d_inverse = function(x) trans_two_sided(x, d_inv_pos, d_inv_neg, f_at_0 = 1)
   )
 }
@@ -345,13 +349,13 @@ transform_log1p <- function() {
 
 #' @export
 #' @rdname transform_log
-log_trans   <- transform_log
+log_trans <- transform_log
 #' @export
 #' @rdname transform_log
 log10_trans <- transform_log10
 #' @export
 #' @rdname transform_log
-log2_trans  <- transform_log2
+log2_trans <- transform_log2
 #' @export
 #' @rdname transform_log
 log1p_trans <- transform_log1p
@@ -365,7 +369,7 @@ transform_pseudo_log <- function(sigma = 1, base = exp(1)) {
     "pseudo_log",
     function(x) asinh(x / (2 * sigma)) / log(base),
     function(x) 2 * sigma * sinh(x * log(base)),
-    d_transform = function(x) 1 / (sqrt(4 + x^2/sigma^2) * sigma * log(base)),
+    d_transform = function(x) 1 / (sqrt(4 + x^2 / sigma^2) * sigma * log(base)),
     d_inverse = function(x) 2 * sigma * cosh(x * log(base)) * log(base)
   )
 }
@@ -474,7 +478,7 @@ transform_sqrt <- function() {
   new_transform(
     "sqrt",
     "sqrt",
-    function(x) ifelse(x < 0, NA_real_, x ^ 2),
+    function(x) ifelse(x < 0, NA_real_, x^2),
     d_transform = function(x) 0.5 / sqrt(x),
     d_inverse = function(x) 2 * x,
     domain = c(0, Inf)

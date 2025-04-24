@@ -19,38 +19,71 @@ test_that("Outside of domain returns na.color", {
     expect_true(is.na(col_numeric(bw, c(0, 1), na.color = NA)(-1)))
     expect_true(is.na(col_numeric(bw, c(0, 1), na.color = NA)(2)))
   })
-  expect_warning(col_factor(bw, letters, na.color = NA)("foo"))
-  expect_warning(col_quantile(bw, 0:1, na.color = NA)(-1))
-  expect_warning(col_quantile(bw, 0:1, na.color = NA)(2))
-  expect_warning(col_numeric(bw, c(0, 1), na.color = NA)(-1))
-  expect_warning(col_numeric(bw, c(0, 1), na.color = NA)(2))
+  expect_snapshot(col_factor(bw, letters, na.color = NA)("foo"))
+  expect_snapshot(col_quantile(bw, 0:1, na.color = NA)(-1))
+  expect_snapshot(col_quantile(bw, 0:1, na.color = NA)(2))
+  expect_snapshot(col_numeric(bw, c(0, 1), na.color = NA)(-1))
+  expect_snapshot(col_numeric(bw, c(0, 1), na.color = NA)(2))
 })
 
 test_that("Basic color accuracy", {
-  expect_identical(c("#000000", "#808080", "#FFFFFF"), col_numeric(colorRamp(bw), NULL)(c(0, 0.5, 1)))
+  expect_identical(
+    c("#000000", "#808080", "#FFFFFF"),
+    col_numeric(colorRamp(bw), NULL)(c(0, 0.5, 1))
+  )
 
   expect_identical(c("#000000", "#FFFFFF"), col_bin(bw, NULL)(c(1, 2)))
   expect_identical(c("#000000", "#FFFFFF"), col_bin(bw, c(1, 2))(c(1, 2)))
   expect_identical(c("#000000", "#FFFFFF"), col_bin(bw, c(1, 2), 2)(c(1, 2)))
-  expect_identical(c("#000000", "#FFFFFF"), col_bin(bw, NULL, bins = c(1, 1.5, 2))(c(1, 2)))
-  expect_identical(c("#000000", "#FFFFFF"), col_bin(bw, c(1, 2), bins = c(1, 1.5, 2))(c(1, 2)))
+  expect_identical(
+    c("#000000", "#FFFFFF"),
+    col_bin(bw, NULL, bins = c(1, 1.5, 2))(c(1, 2))
+  )
+  expect_identical(
+    c("#000000", "#FFFFFF"),
+    col_bin(bw, c(1, 2), bins = c(1, 1.5, 2))(c(1, 2))
+  )
 
-  expect_identical(c("#000000", "#777777", "#FFFFFF"), col_numeric(bw, NULL)(1:3))
-  expect_identical(c("#000000", "#777777", "#FFFFFF"), col_numeric(bw, c(1:3))(1:3))
-  expect_identical(rev(c("#000000", "#777777", "#FFFFFF")), col_numeric(rev(bw), c(1:3))(1:3))
+  expect_identical(
+    c("#000000", "#777777", "#FFFFFF"),
+    col_numeric(bw, NULL)(1:3)
+  )
+  expect_identical(
+    c("#000000", "#777777", "#FFFFFF"),
+    col_numeric(bw, c(1:3))(1:3)
+  )
+  expect_identical(
+    rev(c("#000000", "#777777", "#FFFFFF")),
+    col_numeric(rev(bw), c(1:3))(1:3)
+  )
 
   # domain != unique(x)
-  expect_identical(c("#000000", "#0E0E0E", "#181818"), col_factor(bw, LETTERS)(LETTERS[1:3]))
+  expect_identical(
+    c("#000000", "#0E0E0E", "#181818"),
+    col_factor(bw, LETTERS)(LETTERS[1:3])
+  )
 
   # domain == unique(x)
-  expect_identical(c("#000000", "#777777", "#FFFFFF"), col_factor(bw, LETTERS[1:3])(LETTERS[1:3]))
+  expect_identical(
+    c("#000000", "#777777", "#FFFFFF"),
+    col_factor(bw, LETTERS[1:3])(LETTERS[1:3])
+  )
 
   # no domain
-  expect_identical(c("#000000", "#777777", "#FFFFFF"), col_factor(bw, NULL)(LETTERS[1:3]))
+  expect_identical(
+    c("#000000", "#777777", "#FFFFFF"),
+    col_factor(bw, NULL)(LETTERS[1:3])
+  )
 
   # Non-factor domains are sorted unless instructed otherwise
-  expect_identical(c("#000000", "#777777", "#FFFFFF"), col_factor(bw, rev(LETTERS[1:3]))(LETTERS[1:3]))
-  expect_identical(rev(c("#000000", "#777777", "#FFFFFF")), col_factor(bw, rev(LETTERS[1:3]), ordered = TRUE)(LETTERS[1:3]))
+  expect_identical(
+    c("#000000", "#777777", "#FFFFFF"),
+    col_factor(bw, rev(LETTERS[1:3]))(LETTERS[1:3])
+  )
+  expect_identical(
+    rev(c("#000000", "#777777", "#FFFFFF")),
+    col_factor(bw, rev(LETTERS[1:3]), ordered = TRUE)(LETTERS[1:3])
+  )
 })
 
 test_that("col_numeric respects alpha", {
@@ -61,7 +94,10 @@ test_that("col_numeric respects alpha", {
 })
 
 test_that("CIELab overflow", {
-  expect_identical(c("#FFFFFF", "#CFB1FF", "#9265FF", "#0000FF"), colour_ramp(c("white", "blue"))(0:3 / 3))
+  expect_identical(
+    c("#FFFFFF", "#CFB1FF", "#9265FF", "#0000FF"),
+    colour_ramp(c("white", "blue"))(0:3 / 3)
+  )
 })
 
 test_that("factors match by name, not position", {
@@ -72,7 +108,7 @@ test_that("factors match by name, not position", {
   expect_identical(pal(partial), pal(droplevels(partial)))
 
   # Sending in values outside of the color scale should result in a warning and na.color
-  expect_warning(col <- pal(letters[10:20]))
+  expect_snapshot(col <- pal(letters[10:20]))
   expect_true(all(is.na(col)))
 })
 
@@ -100,7 +136,9 @@ test_that("qualitative palettes don't interpolate", {
   )
   # Same behavior when domain is provided initially, and is not a factor
   expect_identical(
-    col_factor("Accent", domain = rep(letters[5:1], 2), ordered = TRUE)(letters[5:1]),
+    col_factor("Accent", domain = rep(letters[5:1], 2), ordered = TRUE)(letters[
+      5:1
+    ]),
     allColors[1:5]
   )
   # Same behavior when no domain or level is provided initially
@@ -110,7 +148,7 @@ test_that("qualitative palettes don't interpolate", {
   )
 
   # Values outside of the originally provided levels should be NA with warning
-  expect_warning(pal(letters[6]))
+  expect_snapshot(pal(letters[6]))
   expect_true(suppressWarnings(is.na(pal(letters[6]))))
 })
 
@@ -122,7 +160,7 @@ test_that("OK, qualitative palettes sometimes interpolate", {
     name = "Accent"
   )
 
-  expect_warning(result <- pal(letters[1:20]))
+  expect_snapshot(result <- pal(letters[1:20]))
   # The first and last levels are the first and last palette colors
   expect_true(all(result[c(1, 20)] %in% allColors))
   # All the rest are interpolated though
@@ -132,7 +170,9 @@ test_that("OK, qualitative palettes sometimes interpolate", {
 verifyReversal <- function(colorFunc, values, ..., filter = identity) {
   f1 <- filter(colorFunc("Blues", domain = values, ...)(values))
   f2 <- filter(colorFunc("Blues", domain = NULL, ...)(values))
-  f3 <- filter(colorFunc("Blues", domain = values, reverse = FALSE, ...)(values))
+  f3 <- filter(colorFunc("Blues", domain = values, reverse = FALSE, ...)(
+    values
+  ))
   f4 <- filter(colorFunc("Blues", domain = NULL, reverse = FALSE, ...)(values))
   r1 <- filter(colorFunc("Blues", domain = values, reverse = TRUE, ...)(values))
   r2 <- filter(colorFunc("Blues", domain = NULL, reverse = TRUE, ...)(values))
@@ -179,7 +219,9 @@ test_that("Palettes with ncolor < 3 work properly", {
   test_palette <- function(palette) {
     colors <- col_factor(palette, letters[1:2])(letters[1:2])
     # brewer.pal returns minimum 3 colors, and warns if you request less than 3.
-    expected_colors <- suppressWarnings(RColorBrewer::brewer.pal(2, palette))[1:2]
+    expected_colors <- suppressWarnings(RColorBrewer::brewer.pal(2, palette))[
+      1:2
+    ]
     # The expected behavior is that the first two colors in the palette are returned.
     # This is different than the behavior in Leaflet color* functions; in those
     # functions, when 2 colors are needed from an RColorBrewer palette, the first and

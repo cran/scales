@@ -9,9 +9,7 @@ test_that("NA.value works for continuous scales", {
 })
 
 test_that("train_continuous stops on discrete values", {
-  expect_error(train_continuous(LETTERS[1:5]),
-    regexp = "Discrete value supplied"
-  )
+  expect_snapshot(train_continuous(LETTERS[1:5]), error = TRUE)
 })
 
 test_that("train_continuous strips attributes", {
@@ -34,5 +32,15 @@ test_that("train_continuous works with integer64", {
   expect_identical(
     train_continuous(new),
     c(1, 10)
+  )
+})
+
+test_that("train_continuous can train on S3 classes", {
+  my_obj <- structure(c("IX", "CM", "X", "IV"), class = "bar")
+  range.bar <- function(x, ...) range(.romans[x], ...)
+  registerS3method("range", "bar", method = range.bar)
+  expect_equal(
+    train_continuous(my_obj),
+    c(4, 900)
   )
 })

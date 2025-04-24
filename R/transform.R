@@ -28,11 +28,17 @@
 #' @export
 #' @keywords internal
 #' @aliases trans
-new_transform <- function(name, transform, inverse,
-                          d_transform = NULL, d_inverse = NULL,
-                          breaks = extended_breaks(),
-                          minor_breaks = regular_minor_breaks(),
-                          format = format_format(), domain = c(-Inf, Inf)) {
+new_transform <- function(
+  name,
+  transform,
+  inverse,
+  d_transform = NULL,
+  d_inverse = NULL,
+  breaks = extended_breaks(),
+  minor_breaks = regular_minor_breaks(),
+  format = format_format(),
+  domain = c(-Inf, Inf)
+) {
   if (is.character(transform)) transform <- match.fun(transform)
   if (is.character(inverse)) inverse <- match.fun(inverse)
   if (is.character(d_transform)) d_transform <- match.fun(d_transform)
@@ -68,18 +74,31 @@ is.trans <- is.transform
 
 #' @export
 print.transform <- function(x, ...) {
-  cat("Transformer: ", x$name, " [", x$domain[[1]], ", ", x$domain[[2]], "]\n", sep = "")
+  cat(
+    "Transformer: ",
+    x$name,
+    " [",
+    x$domain[[1]],
+    ", ",
+    x$domain[[2]],
+    "]\n",
+    sep = ""
+  )
   invisible(x)
 }
 
 #' @export
 plot.transform <- function(x, y, ..., xlim, ylim = NULL) {
   if (is.null(ylim)) {
-    ylim <- range(x$transform(seq(xlim[1], xlim[2], length = 100)), finite = TRUE)
+    ylim <- range(
+      x$transform(seq(xlim[1], xlim[2], length = 100)),
+      finite = TRUE
+    )
   }
 
   plot(
-    xlim, ylim,
+    xlim,
+    ylim,
     xlab = "",
     ylab = "",
     type = "n",
@@ -103,26 +122,34 @@ lines.transform <- function(x, ..., xlim) {
 #' @export
 as.transform <- function(x, arg = deparse(substitute(x))) {
   if (is.transform(x)) {
-    x
-  } else if (is.character(x) && length(x) >= 1) {
-    if (length(x) == 1) {
-      f <- paste0("transform_", x)
-      # For backward compatibility
-      fun <- get0(f, mode = "function")
-      if (is.null(fun)) {
-        f2 <- paste0(x, "_trans")
-        fun <- get0(f2, mode = "function")
-      }
-      if (is.null(fun)) {
-        cli::cli_abort("Could not find any function named {.fun {f}} or {.fun {f2}}")
-      }
-      fun()
-    } else {
-      transform_compose(!!!x)
-    }
-  } else {
-    cli::cli_abort(sprintf("{.arg %s} must be a character vector or a transformer object", arg))
+    return(x)
   }
+  if (!(is.character(x) && length(x) >= 1)) {
+    stop_input_type(x, "a character vector or transform object")
+  }
+
+  # A character vector is translated to a transform composition
+  if (length(x) != 1) {
+    return(transform_compose(!!!x))
+  }
+
+  # Single characters are interpreted as function names with the
+  # `transform_`-prefix
+  f <- paste0("transform_", x)
+  fun <- get0(f, mode = "function")
+
+  # For backward compatibility we preserve `trans_`-prefixes
+  if (is.null(fun)) {
+    f2 <- paste0(x, "_trans")
+    fun <- get0(f2, mode = "function")
+  }
+
+  if (is.null(fun)) {
+    cli::cli_abort(
+      "Could not find any function named {.fun {f}} or {.fun {f2}}"
+    )
+  }
+  fun()
 }
 
 #' @export

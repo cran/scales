@@ -20,7 +20,7 @@
 pal_brewer <- function(type = "seq", palette = 1, direction = 1) {
   pal <- pal_name(palette, type)
   force(direction)
-  function(n) {
+  fun <- function(n) {
     # If <3 colors are requested, brewer.pal will return a 3-color palette and
     # give a warning. This warning isn't useful, so suppress it.
     # If the palette has k colors and >k colors are requested, brewer.pal will
@@ -40,6 +40,8 @@ pal_brewer <- function(type = "seq", palette = 1, direction = 1) {
 
     pal
   }
+  nlevels <- RColorBrewer::brewer.pal.info[pal, "maxcolors"]
+  new_discrete_palette(fun, "colour", nlevels)
 }
 
 #' @export
@@ -61,16 +63,44 @@ pal_name <- function(palette, type) {
 
 brewer <- list(
   div = c(
-    "BrBG", "PiYG", "PRGn", "PuOr", "RdBu", "RdGy", "RdYlBu", "RdYlGn",
+    "BrBG",
+    "PiYG",
+    "PRGn",
+    "PuOr",
+    "RdBu",
+    "RdGy",
+    "RdYlBu",
+    "RdYlGn",
     "Spectral"
   ),
   qual = c(
-    "Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1",
-    "Set2", "Set3"
+    "Accent",
+    "Dark2",
+    "Paired",
+    "Pastel1",
+    "Pastel2",
+    "Set1",
+    "Set2",
+    "Set3"
   ),
   seq = c(
-    "Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges",
-    "OrRd", "PuBu", "PuBuGn", "PuRd", "Purples", "RdPu", "Reds",
-    "YlGn", "YlGnBu", "YlOrBr", "YlOrRd"
+    "Blues",
+    "BuGn",
+    "BuPu",
+    "GnBu",
+    "Greens",
+    "Greys",
+    "Oranges",
+    "OrRd",
+    "PuBu",
+    "PuBuGn",
+    "PuRd",
+    "Purples",
+    "RdPu",
+    "Reds",
+    "YlGn",
+    "YlGnBu",
+    "YlOrBr",
+    "YlOrRd"
   )
 )
